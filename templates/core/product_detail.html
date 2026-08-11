@@ -1,0 +1,140 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Boutique STANTECH{% endblock %}
+{% block meta_description %}{{ product.short_description|truncatewords:25 }}{% endblock %}
+{% block og_title %}{{ product.name }} | Boutique STANTECH{% endblock %}
+{% block og_description %}{{ product.short_description }}{% endblock %}
+{% block og_image %}{{ product.image_url }}{% endblock %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": ["{{ product.image_url|escapejs }}"],
+  "description": "{{ product.short_description|escapejs }}",
+  "sku": "PROD-{{ product.id }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "XAF",
+    "price": "{{ product.current_price }}",
+    "availability": "https://schema.org/{% if product.stock > 0 %}InStock{% else %}OutOfStock{% endif %}"
+  }
+}
+</script>
+
+{% block content %}
+
+<section style="padding: 9rem 0 5rem;">
+  <div class="container">
+    
+    <!-- Breadcrumb -->
+    <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 2rem;">
+      <a href="{% url 'index' %}">Accueil</a> &gt; 
+      <a href="{% url 'boutique' %}">Boutique</a> &gt; 
+      <span style="color: #0f172a; font-weight: 600;">{{ product.name }}</span>
+    </div>
+
+    <!-- Product Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 3.5rem; align-items: start;">
+      
+      <!-- Product Image -->
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; padding: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width: 100%; height: 420px; object-fit: cover; border-radius: 14px;">
+      </div>
+
+      <!-- Product Details -->
+      <div>
+        {% if product.badge %}
+          <span class="badge badge-accent" style="margin-bottom: 0.8rem;">{{ product.badge }}</span>
+        {% endif %}
+        
+        <span class="badge badge-primary" style="margin-left: 0.5rem; margin-bottom: 0.8rem;">{{ product.category.name|default:"Matériel" }}</span>
+
+        <h1 style="font-size: 2.2rem; color: #0f172a; margin: 0.8rem 0;">{{ product.name }}</h1>
+
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="product-rating" style="font-size: 1rem;">
+            <i data-lucide="star" style="fill: #f59e0b; width: 18px; height: 18px;"></i>
+            <strong style="color: #1e293b; font-size: 1.1rem;">{{ product.rating }}</strong>
+            <span>({{ product.reviews_count }} avis clients certifiés)</span>
+          </div>
+          <span style="color: #cbd5e1;">|</span>
+          <span style="color: #059669; font-weight: 600; font-size: 0.9rem;">
+            <i data-lucide="shield-check" style="vertical-align: middle;"></i> Stock Disponible ({{ product.stock }} unités)
+          </span>
+        </div>
+
+        <div style="background: #f8fafc; padding: 1.2rem 1.5rem; border-radius: 12px; margin-bottom: 1.8rem; display: flex; align-items: baseline; gap: 1rem; border: 1px solid #e2e8f0;">
+          <span style="font-size: 2.2rem; font-weight: 800; color: #059669; font-family: var(--font-heading);">
+            {{ product.current_price }} FCFA
+          </span>
+          {% if product.discount_price %}
+            <span style="font-size: 1.1rem; color: #94a3b8; text-decoration: line-through;">
+              {{ product.price }} FCFA
+            </span>
+          {% endif %}
+        </div>
+
+        <p style="font-size: 1.05rem; color: #475569; line-height: 1.7; margin-bottom: 2rem;">
+          {{ product.full_description|default:product.short_description }}
+        </p>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2.5rem;">
+          <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white;">
+            <button class="qty-btn" style="width: 44px; height: 44px; font-size: 1.2rem;" onclick="let el=document.getElementById('p-qty'); el.value=Math.max(1, parseInt(el.value)-1)">-</button>
+            <input type="number" id="p-qty" value="1" min="1" max="{{ product.stock }}" style="width: 50px; text-align: center; border: none; font-weight: 700; font-size: 1.1rem; outline: none;">
+            <button class="qty-btn" style="width: 44px; height: 44px; font-size: 1.2rem;" onclick="let el=document.getElementById('p-qty'); el.value=parseInt(el.value)+1">+</button>
+          </div>
+
+          <button class="btn btn-primary" style="flex: 1; padding: 0.95rem 1.8rem; font-size: 1.05rem;" onclick="addToCart('{{ product.id }}', parseInt(document.getElementById('p-qty').value))">
+            <i data-lucide="shopping-bag"></i> Ajouter au Panier
+          </button>
+        </div>
+
+        <!-- Specifications Table -->
+        {% if product.get_specs_dict %}
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; margin-top: 2rem;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #0f172a;"><i data-lucide="sliders" style="color: #059669;"></i> Fiche Technique & Spécifications</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
+              {% for spec in product.get_specs_dict %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 0.6rem 0; font-weight: 600; color: #475569; width: 40%;">{{ spec.key }}</td>
+                  <td style="padding: 0.6rem 0; color: #0f172a; font-weight: 500;">{{ spec.value }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+      <div style="margin-top: 6rem; padding-top: 3rem; border-top: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 2rem; color: #0f172a;">Produits Similaires</h2>
+        <div class="products-grid">
+          {% for p in related_products %}
+            <div class="product-card">
+              <div class="product-image">
+                <img src="{{ p.image_url }}" alt="{{ p.name }}">
+              </div>
+              <div class="product-body">
+                <h3 class="product-title"><a href="{% url 'product_detail' p.slug %}">{{ p.name }}</a></h3>
+                <div class="price-current">{{ p.current_price }} FCFA</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

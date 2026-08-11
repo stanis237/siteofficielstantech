@@ -1,0 +1,55 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3><i data-lucide="briefcase"></i> Services ({{ services.count }})</h3>
+    <a href="{% url 'dashboard_service_add' %}" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter</a>
+  </div>
+  {% if services %}
+  <div class="table-responsive">
+    <table>
+      <thead><tr>
+        <th>Icône</th><th>Titre</th><th>Catégorie</th><th>Ordre</th><th>Statut</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for s in services %}
+        <tr>
+          <td>
+            <div style="width:40px;height:40px;background:var(--primary-soft);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
+              <i data-lucide="{{ s.icon }}" style="width:18px;height:18px;"></i>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:600;">{{ s.title }}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">{{ s.short_description|truncatechars:60 }}</div>
+          </td>
+          <td>{{ s.category.name|default:"—" }}</td>
+          <td>{{ s.order }}</td>
+          <td>
+            {% if s.is_active %}<span class="badge badge-green">Actif</span>{% else %}<span class="badge badge-red">Inactif</span>{% endif %}
+            {% if s.is_featured %}<span class="badge badge-purple" style="margin-left:4px;">Vedette</span>{% endif %}
+          </td>
+          <td>
+            <div class="action-cell">
+              <a href="{% url 'dashboard_service_edit' s.pk %}" class="btn btn-outline btn-sm btn-icon" title="Modifier"><i data-lucide="pencil"></i></a>
+              <form method="post" action="{% url 'dashboard_service_delete' s.pk %}" onsubmit="return confirm('Supprimer ce service ?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Supprimer"><i data-lucide="trash-2"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <i data-lucide="briefcase"></i>
+      <h4>Aucun service enregistré</h4>
+      <p>Ajoutez vos offres de services pour les afficher sur le site.</p>
+      <a href="{% url 'dashboard_service_add' %}" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter un Service</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

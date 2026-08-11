@@ -1,0 +1,126 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h3>
+        <i data-lucide="{% if product %}pencil{% else %}plus{% endif %}"></i>
+        {% if product %}Modifier : {{ product.name }}{% else %}Nouveau Produit{% endif %}
+      </h3>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-card-body">
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Nom du Produit <span class="req">*</span></label>
+            <input type="text" name="name" class="form-control" value="{{ product.name|default:'' }}" required placeholder="Ex : MacBook Pro 14 M3, Routeur Mikrotik...">
+          </div>
+          <div class="form-group">
+            <label>Prix (FCFA) <span class="req">*</span></label>
+            <input type="number" name="price" class="form-control" value="{{ product.price|default:'' }}" required placeholder="ex: 450000">
+          </div>
+          <div class="form-group">
+            <label>Prix Réduit (optionnel)</label>
+            <input type="number" name="discount_price" class="form-control" value="{{ product.discount_price|default:'' }}" placeholder="Prix barré si promo">
+          </div>
+          <div class="form-group">
+            <label>Quantité en Stock</label>
+            <input type="number" name="stock" class="form-control" value="{{ product.stock|default:'10' }}" min="0">
+          </div>
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select name="category" class="form-control">
+              <option value="">— Aucune catégorie —</option>
+              {% for cat in categories %}
+                <option value="{{ cat.pk }}" {% if product.category_id == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Badge / Label</label>
+            <input type="text" name="badge" class="form-control" value="{{ product.badge|default:'' }}" placeholder="ex: Nouveau, Promo, Top Ventes">
+          </div>
+          <div class="form-group">
+            <label>Note (sur 5)</label>
+            <input type="number" name="rating" class="form-control" value="{{ product.rating|default:'5.0' }}" min="0" max="5" step="0.1">
+          </div>
+          <div class="form-group form-full">
+            <label>Description Courte <span class="req">*</span></label>
+            <textarea name="short_description" class="form-control" rows="3" required placeholder="Résumé accrocheur du produit...">{{ product.short_description|default:'' }}</textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Description Complète</label>
+            <textarea name="full_description" class="form-control" rows="5" placeholder="Description détaillée, caractéristiques, contenu de la boîte...">{{ product.full_description|default:'' }}</textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>URL de l'Image</label>
+            <input type="text" name="image_url" id="image_url_input" class="form-control" value="{{ product.image_url|default:'' }}" placeholder="https://exemple.com/image.jpg ou /media/produit.jpg">
+            <img id="img-preview" src="{{ product.image_url|default:'' }}" class="img-preview" {% if product.image_url %}style="display:block;"{% endif %}>
+          </div>
+          <div class="form-group form-full">
+            <label>Fiche Technique (Clé: Valeur par ligne)</label>
+            <textarea name="specs" class="form-control" rows="5" placeholder="Garantie: 2 ans&#10;Marque: Apple&#10;RAM: 16 Go&#10;Stockage: 512 Go SSD">{{ product.specs|default:'' }}</textarea>
+            <div class="form-hint">Chaque ligne = une spec. Format : Clé: Valeur</div>
+          </div>
+          <div style="display:flex;gap:2rem;align-items:center;" class="form-full">
+            <div class="form-check">
+              <input type="checkbox" name="is_active" id="id_is_active" {% if product.is_active or not product %}checked{% endif %}>
+              <label for="id_is_active">Produit Actif (En vente)</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" name="is_featured" id="id_is_featured" {% if product.is_featured %}checked{% endif %}>
+              <label for="id_is_featured">Produit Vedette (Page d'accueil)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <a href="{% url 'dashboard_products' %}" class="btn btn-outline"><i data-lucide="arrow-left"></i> Annuler</a>
+        <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Enregistrer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- AIDE -->
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="form-card">
+      <div class="form-card-header"><h3><i data-lucide="info"></i> Guide de saisie</h3></div>
+      <div class="form-card-body" style="font-size:0.82rem;color:var(--text-muted);">
+        <p style="margin-bottom:0.75rem;"><strong style="color:var(--primary);">Image :</strong> Collez une URL directe (.jpg/.png). L'aperçu s'affichera automatiquement.</p>
+        <p style="margin-bottom:0.75rem;"><strong style="color:var(--primary);">Badge :</strong> Valeurs courantes : <code>Nouveau</code>, <code>Promo</code>, <code>Top Ventes</code>, <code>Recommandé</code>.</p>
+        <p style="margin-bottom:0.75rem;"><strong style="color:var(--primary);">Fiche Technique :</strong> Une spécification par ligne au format <code>Clé: Valeur</code>.</p>
+        <p><strong style="color:var(--primary);">Vedette :</strong> Les produits vedettes apparaissent sur la page d'accueil.</p>
+      </div>
+    </div>
+
+    {% if product %}
+    <div class="form-card" style="border-color:#fecaca;">
+      <div class="form-card-header" style="background:#fef2f2;"><h3 style="color:#dc2626;"><i data-lucide="trash-2"></i> Zone Danger</h3></div>
+      <div class="form-card-body">
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">Cette action est irréversible.</p>
+        <form method="post" action="{% url 'dashboard_product_delete' product.pk %}" onsubmit="return confirm('Supprimer définitivement ce produit ?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger" style="width:100%;">
+            <i data-lucide="trash-2"></i> Supprimer ce Produit
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  const imgInput = document.getElementById('image_url_input');
+  const imgPreview = document.getElementById('img-preview');
+  if(imgInput) {
+    imgInput.addEventListener('input', function() {
+      const url = this.value.trim();
+      if(url) { imgPreview.src = url; imgPreview.style.display = 'block'; }
+      else { imgPreview.style.display = 'none'; }
+    });
+  }
+  if(window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

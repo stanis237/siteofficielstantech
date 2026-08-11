@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}À Propos de STANTECH | Notre Vision & Notre Histoire{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-accent" style="margin-bottom: 1rem;">QUI SOMMES-NOUS ?</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Bâtir le Futur Technologique</h1>
+    <p style="color: #94a3b8; max-width: 650px; margin: 0 auto; font-size: 1.1rem;">
+      STANTECH est une entreprise d'ingénierie et de solutions informatiques de référence, dédiée à l'innovation et à la haute technologie.
+    </p>
+  </div>
+</section>
+
+<!-- Story Section -->
+<section style="padding: 5rem 0; background: white;">
+  <div class="container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+    <div>
+      <span class="badge badge-primary" style="margin-bottom: 1rem;">NOTRE ENVOLEE</span>
+      <h2 style="font-size: 2.3rem; color: #0f172a; margin-bottom: 1.2rem;">Expertise, Rigueur & Innovation Continuels</h2>
+      <p style="color: #475569; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.5rem;">
+        Depuis notre création, STANTECH s'est imposée comme un partenaire technologique stratégique pour les institutions, les entreprises industrielles et les PME en quête de performance.
+      </p>
+      <p style="color: #475569; font-size: 1.05rem; line-height: 1.8; margin-bottom: 2rem;">
+        Nous combinons un savoir-faire poussé en développement logiciel, en intégration IoT industrielle, en cybersécurité et en distribution de matériel informatique certifié.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div style="border-left: 3px solid #059669; padding-left: 1rem;">
+          <h4 style="font-size: 1.1rem; color: #0f172a;">Vision</h4>
+          <p style="font-size: 0.9rem; color: #64748b;">Devenir le hub d'innovation de référence en ingénierie logicielle et IoT d'Afrique de l'Ouest.</p>
+        </div>
+        <div style="border-left: 3px solid #10b981; padding-left: 1rem;">
+          <h4 style="font-size: 1.1rem; color: #0f172a;">Mission</h4>
+          <p style="font-size: 0.9rem; color: #64748b;">Fournir des solutions technologiques hautement sécurisées, évolutives et immédiatement rentables.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Équipe STANTECH" style="width: 100%; border-radius: 20px; box-shadow: var(--shadow-lg);">
+    </div>
+  </div>
+</section>
+
+<!-- Values Section -->
+<section style="padding: 5rem 0; background: #f8fafc;">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary">NOS VALEURS FONDAMENTALES</span>
+      <h2>Ce Qui Nous Anime Au Quotidien</h2>
+      <p>Nos piliers d'action pour vous offrir l'excellence technologique sans concession.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 3rem;">
+      <div style="background: white; padding: 2.2rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <div style="width: 54px; height: 54px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem;">
+          <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.6rem;">Sécurité & Fiabilité</h3>
+        <p style="color: #64748b; font-size: 0.92rem;">Aucun compromis sur la protection des données et la robustesse de vos infrastructures.</p>
+      </div>
+
+      <div style="background: white; padding: 2.2rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <div style="width: 54px; height: 54px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem;">
+          <i data-lucide="zap" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.6rem;">Haute Performance</h3>
+        <p style="color: #64748b; font-size: 0.92rem;">Optimisation maximale du code et des équipements pour des résultats ultra-rapides.</p>
+      </div>
+
+      <div style="background: white; padding: 2.2rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <div style="width: 54px; height: 54px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem;">
+          <i data-lucide="heart-handshake" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.6rem;">Engagement Client</h3>
+        <p style="color: #64748b; font-size: 0.92rem;">Un accompagnement personnalisé et une réactivité garantie sur l'ensemble de vos projets.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3><i data-lucide="layers"></i> Réalisations ({{ realizations.count }})</h3>
+    <a href="{% url 'dashboard_realisation_add' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 2px 8px rgba(245,158,11,0.3);">
+      <i data-lucide="plus"></i> Ajouter
+    </a>
+  </div>
+  {% if realizations %}
+  <div class="table-responsive">
+    <table>
+      <thead><tr>
+        <th>Image</th><th>Projet</th><th>Client</th><th>Technologies</th><th>Date</th><th>Statut</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for r in realizations %}
+        <tr>
+          <td>
+            {% if r.image_url %}
+              <img src="{{ r.image_url }}" class="img-thumb" onerror="this.style.display='none'">
+            {% else %}
+              <div style="width:40px;height:40px;background:#fefce8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#d97706;">
+                <i data-lucide="image" style="width:16px;height:16px;"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            <div style="font-weight:600;">{{ r.title }}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">{{ r.short_description|truncatechars:55 }}</div>
+          </td>
+          <td>{{ r.client_name|default:"—" }}</td>
+          <td>
+            <div style="display:flex;flex-wrap:wrap;gap:3px;max-width:180px;">
+              {% for tag in r.get_tech_tags|slice:":4" %}
+                <span class="badge badge-gray" style="font-size:0.67rem;">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </td>
+          <td>{{ r.completion_date|date:"M Y"|default:"—" }}</td>
+          <td>
+            {% if r.is_active %}<span class="badge badge-green">Actif</span>{% else %}<span class="badge badge-red">Inactif</span>{% endif %}
+            {% if r.is_featured %}<span class="badge badge-yellow" style="margin-left:4px;">Vedette</span>{% endif %}
+          </td>
+          <td>
+            <div class="action-cell">
+              <a href="{% url 'dashboard_realisation_edit' r.pk %}" class="btn btn-outline btn-sm btn-icon" title="Modifier"><i data-lucide="pencil"></i></a>
+              <form method="post" action="{% url 'dashboard_realisation_delete' r.pk %}" onsubmit="return confirm('Supprimer cette réalisation ?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Supprimer"><i data-lucide="trash-2"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <i data-lucide="layers"></i>
+      <h4>Aucune réalisation enregistrée</h4>
+      <p>Mettez en valeur vos projets et références clients.</p>
+      <a href="{% url 'dashboard_realisation_add' %}" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter une Réalisation</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

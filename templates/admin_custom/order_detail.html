@@ -1,0 +1,87 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start;">
+  <!-- ORDER DETAILS -->
+  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i data-lucide="user"></i> Informations Client</h3>
+        <div style="display:flex;gap:0.5rem;">
+          <a href="{% url 'dashboard_export_order_single_pdf' order.pk %}" class="btn btn-sm btn-primary" style="background:linear-gradient(135deg, #ef4444, #dc2626);">
+            <i data-lucide="file-text"></i> Télécharger Facture PDF
+          </a>
+          <a href="{% url 'dashboard_orders' %}" class="btn btn-outline btn-sm"><i data-lucide="arrow-left"></i> Retour</a>
+        </div>
+      </div>
+      <div style="padding:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Nom</div><div style="font-weight:600;">{{ order.customer_name }}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Téléphone</div><div style="font-weight:600;">{{ order.customer_phone }}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Email</div><div>{{ order.customer_email|default:"—" }}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Ville</div><div>{{ order.city }}</div></div>
+        <div style="grid-column:1/-1;"><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Adresse de Livraison</div><div>{{ order.delivery_address }}</div></div>
+        {% if order.notes %}<div style="grid-column:1/-1;"><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem;">Notes</div><div style="font-style:italic;">{{ order.notes }}</div></div>{% endif %}
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header"><h3><i data-lucide="shopping-cart"></i> Articles Commandés</h3></div>
+      <table>
+        <thead><tr><th>Produit</th><th>Prix Unitaire</th><th>Qté</th><th>Sous-Total</th></tr></thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td><strong>{{ item.product_name }}</strong></td>
+            <td>{{ item.price|floatformat:0 }} FCFA</td>
+            <td>{{ item.quantity }}</td>
+            <td><strong>{{ item.subtotal|floatformat:0 }} FCFA</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="padding:1rem 1.5rem;border-top:2px solid var(--border);display:flex;justify-content:flex-end;align-items:center;gap:1rem;">
+        <span style="font-size:0.9rem;color:var(--text-muted);">TOTAL</span>
+        <span style="font-size:1.4rem;font-weight:800;color:var(--primary);">{{ order.total_amount|floatformat:0 }} FCFA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR: STATUS + INFO -->
+  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+    <div class="table-card">
+      <div class="table-header"><h3><i data-lucide="activity"></i> Statut de la Commande</h3></div>
+      <div style="padding:1.25rem;">
+        <div style="margin-bottom:1rem;">
+          {% if order.status == 'pending' %}<span class="badge badge-yellow" style="font-size:0.85rem;padding:0.4rem 1rem;">⏳ En attente</span>
+          {% elif order.status == 'confirmed' %}<span class="badge badge-blue" style="font-size:0.85rem;padding:0.4rem 1rem;">✅ Confirmée</span>
+          {% elif order.status == 'shipped' %}<span class="badge badge-purple" style="font-size:0.85rem;padding:0.4rem 1rem;">🚚 En livraison</span>
+          {% elif order.status == 'delivered' %}<span class="badge badge-green" style="font-size:0.85rem;padding:0.4rem 1rem;">📦 Livrée</span>
+          {% else %}<span class="badge badge-red" style="font-size:0.85rem;padding:0.4rem 1rem;">❌ Annulée</span>{% endif %}
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label style="font-size:0.8rem;font-weight:600;">Changer le statut</label>
+            <select name="status" class="form-control">
+              {% for val, label in status_choices %}
+                <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;"><i data-lucide="refresh-cw"></i> Mettre à Jour</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header"><h3><i data-lucide="info"></i> Informations</h3></div>
+      <div style="padding:1rem;">
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span style="color:var(--text-muted);">Numéro</span><strong>{{ order.order_number }}</strong></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span style="color:var(--text-muted);">Date</span><span>{{ order.created_at|date:"d/m/Y à H:i" }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span style="color:var(--text-muted);">Articles</span><span>{{ order.items.count }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

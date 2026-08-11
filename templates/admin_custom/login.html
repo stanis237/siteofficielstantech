@@ -1,0 +1,367 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STANTECH | Accès Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="{% static 'js/lucide.min.js' %}"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #059669;
+      --primary-light: #10b981;
+      --primary-glow: rgba(16,185,129,0.3);
+      --dark: #0f172a;
+      --dark-card: #1e293b;
+      --muted: #64748b;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: blob 10s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: var(--primary);
+      top: -150px; left: -100px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: #3b82f6;
+      bottom: -100px; right: -80px;
+      animation-delay: -5s;
+    }
+    @keyframes blob {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.15); }
+    }
+
+    /* Grid dots pattern */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Card */
+    .login-card {
+      position: relative;
+      z-index: 10;
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem 2.8rem;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,185,129,0.1);
+      animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2.2rem;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      box-shadow: 0 0 20px var(--primary-glow);
+      transform: rotate(-4deg);
+    }
+    .logo-icon svg { width: 24px; height: 24px; }
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: -0.03em;
+    }
+    .logo-text span { color: var(--primary-light); }
+
+    /* Heading */
+    .login-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 0.4rem;
+    }
+    .login-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .login-sub svg { width: 14px; height: 14px; color: var(--primary-light); }
+
+    /* Error alert */
+    .error-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.5rem;
+      color: #fca5a5;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      animation: shake 0.4s ease;
+    }
+    .error-alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-5px); }
+      40%,80%  { transform: translateX(5px); }
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px; height: 17px;
+      color: var(--muted);
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.8rem;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(15,23,42,0.8);
+    }
+    input[type="text"]:focus ~ svg,
+    input[type="password"]:focus ~ svg {
+      color: var(--primary-light);
+    }
+    /* eye toggle for password */
+    .toggle-pw {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--primary-light); }
+    .toggle-pw svg { width: 17px; height: 17px; }
+
+    /* Submit */
+    .btn-login {
+      width: 100%;
+      padding: 0.95rem;
+      margin-top: 0.5rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 4px 16px var(--primary-glow);
+      letter-spacing: 0.02em;
+    }
+    .btn-login svg { width: 18px; height: 18px; }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(16,185,129,0.45);
+    }
+    .btn-login:active { transform: translateY(0); }
+
+    /* Back link */
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-top: 1.8rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link svg { width: 14px; height: 14px; }
+    .back-link:hover { color: var(--primary-light); }
+
+    /* Security badge */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: #475569;
+    }
+    .security-badge svg { width: 13px; height: 13px; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <i data-lucide="cpu"></i>
+      </div>
+      <div class="logo-text">STAN<span>TECH</span></div>
+    </div>
+
+    <h1 class="login-heading">Accès Administrateur</h1>
+    <p class="login-sub">
+      <i data-lucide="shield-check"></i>
+      Réservé aux super-administrateurs
+    </p>
+
+    <!-- Error message -->
+    {% if error %}
+    <div class="error-alert">
+      <i data-lucide="alert-triangle"></i>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'dashboard_login' %}">
+      {% csrf_token %}
+      {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+
+      <div class="form-group">
+        <label for="username">Identifiant</label>
+        <div class="input-wrap">
+          <input type="text" id="username" name="username"
+                 placeholder="Nom d'utilisateur"
+                 autocomplete="username" required>
+          <i data-lucide="user"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password"
+                 placeholder="••••••••••"
+                 autocomplete="current-password" required>
+          <i data-lucide="lock"></i>
+          <button type="button" class="toggle-pw" onclick="togglePassword()" title="Afficher/masquer">
+            <i data-lucide="eye" id="eye-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i data-lucide="log-in"></i>
+        Se connecter au Dashboard
+      </button>
+    </form>
+
+    <a href="{% url 'index' %}" class="back-link">
+      <i data-lucide="arrow-left"></i>
+      Retour au site STANTECH
+    </a>
+
+    <div class="security-badge">
+      <i data-lucide="lock"></i>
+      Connexion sécurisée — Accès superuser requis
+    </div>
+
+  </div>
+
+  <script>
+    if (window.lucide) lucide.createIcons();
+
+    function togglePassword() {
+      const pw = document.getElementById('password');
+      const icon = document.getElementById('eye-icon');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        pw.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

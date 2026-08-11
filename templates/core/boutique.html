@@ -1,0 +1,99 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Boutique Matériel Technologique & IoT | STANTECH{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-dark" style="margin-bottom: 1rem;">E-COMMERCE HIGH-TECH</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Boutique STANTECH</h1>
+    <p style="color: #ecfdf5; max-width: 650px; margin: 0 auto; font-size: 1.1rem;">
+      Commandez en ligne vos serveurs, passerelles IoT, stations de travail et équipements réseau certifiés avec garantie constructeur.
+    </p>
+  </div>
+</section>
+
+<!-- Shop Section -->
+<section class="shop-section" style="padding: 4rem 0 6rem;">
+  <div class="container">
+
+    <!-- Filter & Search Controls -->
+    <div class="shop-controls">
+      <div class="search-box">
+        <i data-lucide="search"></i>
+        <input type="text" id="shop-search" placeholder="Rechercher un produit (ex: Serveur, IoT, Workstation)...">
+      </div>
+
+      <div class="filter-tabs" style="margin-bottom: 0;">
+        <button class="tab-btn category-filter-btn active" data-category="all">Tous les produits</button>
+        {% for cat in categories %}
+          <button class="tab-btn category-filter-btn" data-category="{{ cat.slug }}">{{ cat.name }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid">
+      {% for product in products %}
+        <div class="product-card" data-name="{{ product.name }}" data-category="{{ product.category.slug|default:'all' }}">
+          {% if product.badge %}
+            <span class="badge badge-accent product-badge-tag">{{ product.badge }}</span>
+          {% endif %}
+          
+          <div class="product-image">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            <button class="product-quick-view" onclick="openQuickView('{{ product.id }}')" title="Aperçu rapide">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+
+          <div class="product-body">
+            <span class="product-category">{{ product.category.name|default:"Matériel" }}</span>
+            <h3 class="product-title">
+              <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+            </h3>
+
+            <div class="product-rating">
+              <i data-lucide="star" style="fill: #f59e0b; width: 14px; height: 14px;"></i>
+              <strong style="color: #1e293b;">{{ product.rating }}</strong>
+              <span>({{ product.reviews_count }} avis)</span>
+            </div>
+
+            <p class="product-desc">{{ product.short_description }}</p>
+
+            <div style="font-size: 0.8rem; color: #059669; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+              <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Stock disponible ({{ product.stock }} unités)
+            </div>
+
+            <div class="product-footer">
+              <div class="price-box">
+                {% if product.discount_price %}
+                  <span class="price-current">{{ product.discount_price }} FCFA</span>
+                  <span class="price-old">{{ product.price }} FCFA</span>
+                {% else %}
+                  <span class="price-current">{{ product.price }} FCFA</span>
+                {% endif %}
+              </div>
+
+              <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                <i data-lucide="shopping-bag"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
+          <i data-lucide="package-x" style="width: 60px; height: 60px; color: #94a3b8; margin-bottom: 1rem;"></i>
+          <h3>Aucun produit trouvé</h3>
+          <p style="color: #64748b;">Essayez une autre recherche ou réinitialisez les filtres.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

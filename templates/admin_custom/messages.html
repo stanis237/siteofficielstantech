@@ -1,0 +1,67 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3><i data-lucide="mail"></i> Messages de Contact ({{ msgs.count }})</h3>
+  </div>
+  {% if msgs %}
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Expéditeur</th>
+          <th>Sujet</th>
+          <th>Service</th>
+          <th>Téléphone</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for msg in msgs %}
+        <tr style="{% if not msg.is_read %}font-weight:600; background:rgba(16,185,129,0.03);{% endif %}">
+          <td>
+            <a href="{% url 'dashboard_message_read' msg.pk %}" style="color:var(--text-main); text-decoration:none;">
+              <strong>{{ msg.name }}</strong>
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">{{ msg.email }}</div>
+            </a>
+          </td>
+          <td>{{ msg.subject }}</td>
+          <td>{{ msg.service_interest|default:"Général" }}</td>
+          <td>{{ msg.phone|default:"—" }}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            {% if msg.is_read %}
+              <span class="badge badge-green">Lu</span>
+            {% else %}
+              <span class="badge badge-yellow">Non lu</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-cell">
+              <a href="{% url 'dashboard_message_read' msg.pk %}" class="btn btn-outline btn-sm btn-icon" title="Lire le message">
+                <i data-lucide="eye"></i>
+              </a>
+              <form method="post" action="{% url 'dashboard_message_delete' msg.pk %}" onsubmit="return confirm('Voulez-vous vraiment supprimer ce message ?');" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Supprimer">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <i data-lucide="mail-search"></i>
+      <h4>Aucun message</h4>
+      <p>Les messages reçus via le formulaire de contact apparaîtront ici.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

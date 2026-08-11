@@ -1,0 +1,141 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Contact & Devis | STANTECH Enterprise{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section
+  style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-accent" style="margin-bottom: 1rem;">PARLONS DE VOTRE PROJET</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Contactez STANTECH</h1>
+    <p style="color: #94a3b8; max-width: 650px; margin: 0 auto; font-size: 1.1rem;">
+      Une question technologique, un projet de développement ou une demande de devis sur notre boutique ? Nos experts
+      vous répondent sous 24h.
+    </p>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section style="padding: 5rem 0; background: white;">
+  <div class="container" style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 4rem; align-items: start;">
+
+    <!-- Contact Info Cards -->
+    <div>
+      <h2 style="font-size: 2rem; color: #0f172a; margin-bottom: 1.5rem;">Coordonnées Directes</h2>
+      <p style="color: #64748b; margin-bottom: 2.5rem;">N'hésitez pas à nous joindre directement par téléphone ou en
+        vous rendant dans nos bureaux.</p>
+
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem;">
+          <div
+            style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; shrink: 0;">
+            <i data-lucide="map-pin"></i>
+          </div>
+          <div>
+            <strong style="color: #0f172a; font-size: 1rem; display: block;">Siège Social</strong>
+            <span style="color: #64748b; font-size: 0.9rem;">Douala, Cameroun</span>
+          </div>
+        </div>
+
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem;">
+          <div
+            style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; shrink: 0;">
+            <i data-lucide="phone"></i>
+          </div>
+          <div>
+            <strong style="color: #0f172a; font-size: 1rem; display: block;">Téléphone & WhatsApp</strong>
+            <span style="color: #64748b; font-size: 0.9rem;">+237 674861509 / +237 674861509</span>
+          </div>
+        </div>
+
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem;">
+          <div
+            style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; shrink: 0;">
+            <i data-lucide="mail"></i>
+          </div>
+          <div>
+            <strong style="color: #0f172a; font-size: 1rem; display: block;">Adresse Email</strong>
+            <span style="color: #64748b; font-size: 0.9rem;">contact@stantech.com / stanismiafo348@gmail.com</span>
+          </div>
+        </div>
+
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem;">
+          <div
+            style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; shrink: 0;">
+            <i data-lucide="clock"></i>
+          </div>
+          <div>
+            <strong style="color: #0f172a; font-size: 1rem; display: block;">Heures d'ouverture</strong>
+            <span style="color: #64748b; font-size: 0.9rem;">Lundi - Vendredi: 08h00 - 18h00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form Box -->
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 2.5rem; box-shadow: var(--shadow-md);">
+      <h2 style="font-size: 2rem; color: #0f172a; margin-bottom: 0.5rem;">Envoyer un Message</h2>
+      <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem;">Remplissez ce formulaire et un consultant
+        STANTECH prendra contact avec vous.</p>
+
+      <form method="POST" action="{% url 'contact' %}">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+          <div class="form-group">
+            <label>Votre Nom & Prénom *</label>
+            <input type="text" name="name" class="form-control" placeholder="ex: stanismiafo348 required>
+          </div>
+          <div class=" form-group">
+            <label>Votre Email *</label>
+            <input type="email" name="email" class="form-control" placeholder="ex: contact@entreprise.com" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+          <div class="form-group">
+            <label>Numéro de Téléphone</label>
+            <input type="tel" name="phone" class="form-control" placeholder="+237 674861509">
+          </div>
+          <div class="form-group">
+            <label>Sujet du Message *</label>
+            <input type="text" name="subject" class="form-control" placeholder="ex: Demande de devis projet IoT"
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Domaine ou Service Concerné</label>
+          <select name="service_interest" class="form-control">
+            <option value="Développement sur-mesure">Développement sur-mesure & Logiciel</option>
+            <option value="Infrastructure Cloud & Cybersécurité">Infrastructure Cloud & Cybersécurité</option>
+            <option value="IoT & Automatisation Industrielle">IoT & Automatisation Industrielle</option>
+            <option value="Commande Matériel Boutique">Commande Matériel / Boutique Tech</option>
+            <option value="Autre">Autre demande</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Votre Message / Détails du projet *</label>
+          <textarea name="message" class="form-control" rows="4"
+            placeholder="Décrivez votre besoin ou votre projet en quelques lignes..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+          style="width: 100%; padding: 1rem; font-size: 1.05rem; margin-top: 1rem;">
+          <i data-lucide="send"></i> Envoyer le Message
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

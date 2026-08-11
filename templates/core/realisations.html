@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Nos Réalisations & Projets | STANTECH{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-accent" style="margin-bottom: 1rem;">PORTFOLIO & SUCCÈS</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Nos Projets & Réalisations</h1>
+    <p style="color: #94a3b8; max-width: 650px; margin: 0 auto; font-size: 1.1rem;">
+      Découvrez l'impact de nos solutions déployées chez nos clients partenaires à travers l'Afrique et l'international.
+    </p>
+  </div>
+</section>
+
+<!-- Realizations Showcase -->
+<section class="realizations-section" style="padding: 5rem 0;">
+  <div class="container">
+
+    <div class="portfolio-grid">
+      {% for real in realizations %}
+        <div class="portfolio-card">
+          <div class="portfolio-img">
+            <img src="{{ real.image_url }}" alt="{{ real.title }}">
+            <div class="portfolio-overlay">
+              <span class="badge badge-accent">{{ real.category.name|default:"Ingénierie STANTECH" }}</span>
+            </div>
+          </div>
+          <div class="portfolio-content" style="padding: 1.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">CLIENT : {{ real.client_name|default:"Entreprise Partenaire" }}</span>
+              {% if real.completion_date %}
+                <span style="font-size: 0.78rem; color: #64748b;">Livré en {{ real.completion_date|date:"Y" }}</span>
+              {% endif %}
+            </div>
+
+            <h3 style="font-size: 1.35rem; margin-bottom: 0.8rem; color: #0f172a;">{{ real.title }}</h3>
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.4rem; line-height: 1.6;">
+              {{ real.full_description|default:real.short_description }}
+            </p>
+
+            {% if real.get_tech_tags %}
+              <div class="tech-tags">
+                {% for tag in real.get_tech_tags %}
+                  <span class="tag">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Un Projet Similaire en Tête ?</h2>
+      <p>Confiez-nous l'étude technique de votre projet et bénéficiez de notre expertise terrain.</p>
+      <a href="{% url 'contact' %}" class="btn btn-primary" style="padding: 0.9rem 2.2rem;">
+        Soumettre un Projet <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

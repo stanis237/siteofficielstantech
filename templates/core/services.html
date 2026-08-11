@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Nos Services d'Ingénierie & IT | STANTECH{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-accent" style="margin-bottom: 1rem;">EXPERTISES & INGENIERIE</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Nos Services Entreprise</h1>
+    <p style="color: #94a3b8; max-width: 650px; margin: 0 auto; font-size: 1.1rem;">
+      STANTECH met à votre disposition un savoir-faire de pointe en développement logiciel, cybersécurité, IoT industriel et conseil informatique.
+    </p>
+  </div>
+</section>
+
+<!-- Services Detail Section -->
+<section class="services-section" style="padding: 5rem 0;">
+  <div class="container">
+    <div class="services-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+      {% for service in services %}
+        <div class="service-card" style="padding: 2.5rem 2rem;">
+          <div class="service-icon" style="width: 70px; height: 70px;">
+            <i data-lucide="{{ service.icon }}" style="width: 32px; height: 32px;"></i>
+          </div>
+
+          <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">{{ service.title }}</h3>
+          <p style="font-size: 1rem; color: #475569; line-height: 1.7; margin-bottom: 1.5rem;">
+            {{ service.full_description|default:service.short_description }}
+          </p>
+
+          {% if service.get_features_list %}
+            <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+              <strong style="font-size: 0.9rem; color: #0f172a; display: block; margin-bottom: 0.8rem;">Compétences & Livrables :</strong>
+              <ul class="service-features-list">
+                {% for feature in service.get_features_list %}
+                  <li style="font-size: 0.9rem;"><i data-lucide="check-circle-2" style="color: #059669;"></i> {{ feature }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          <div style="margin-top: 2rem;">
+            <a href="{% url 'contact' %}?service={{ service.title|urlencode }}" class="btn btn-primary" style="width: 100%;">
+              Demander un Devis <i data-lucide="send"></i>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Process Section -->
+<section style="padding: 5rem 0; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary">NOTRE METHODOLOGIE</span>
+      <h2>Comment Nous Travaillons</h2>
+      <p>Une démarche rigoureuse axée sur la performance, la sécurité et la satisfaction client.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; margin-top: 3rem;">
+      <div style="background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; font-weight: 800; font-size: 1.2rem;">1</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Audit & Analyse</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Compréhension approfondie de vos besoins, exigences techniques et contraintes d'infrastructure.</p>
+      </div>
+
+      <div style="background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; font-weight: 800; font-size: 1.2rem;">2</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Conception & Prototype</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Architecture moderne, maquettage et validation étape par étape du projet.</p>
+      </div>
+
+      <div style="background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; font-weight: 800; font-size: 1.2rem;">3</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Déploiement & Tests</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Mise en production sécurisée avec tests de charge, d'intrusion et d'intégration.</p>
+      </div>
+
+      <div style="background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #ecfdf5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; font-weight: 800; font-size: 1.2rem;">4</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Support & Maintenance</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Suivi continu, mises à jour et assistance technique réactive 24/7.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

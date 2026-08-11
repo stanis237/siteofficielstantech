@@ -1,0 +1,154 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Mon Panier & Finaliser la Commande | STANTECH{% endblock %}
+
+{% block content %}
+
+<section style="padding: 9rem 0 6rem; background: #f8fafc; min-height: 80vh;">
+  <div class="container">
+
+    <div style="margin-bottom: 2.5rem;">
+      <h1 style="font-size: 2.5rem; color: #0f172a; margin-bottom: 0.5rem;">Mon Panier d'Achat</h1>
+      <p style="color: #64748b;">Vérifiez vos articles et renseignez vos informations de livraison ci-dessous.</p>
+    </div>
+
+    {% if cart_items_detailed %}
+      <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 3rem; align-items: start;">
+        
+        <!-- Cart Table -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-sm);">
+          <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;"><i data-lucide="shopping-bag" style="color: #059669;"></i> Articles sélectionnés ({{ cart_count }})</h3>
+          
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; font-size: 0.85rem; color: #64748b; text-transform: uppercase;">
+                <th style="padding-bottom: 1rem;">Produit</th>
+                <th style="padding-bottom: 1rem;">Prix</th>
+                <th style="padding-bottom: 1rem;">Quantité</th>
+                <th style="padding-bottom: 1rem; text-align: right;">Sous-total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart_items_detailed %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 1.2rem 0; display: flex; align-items: center; gap: 1rem;">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #f8fafc;">
+                    <div>
+                      <strong style="color: #0f172a; font-size: 0.95rem;">{{ item.product.name }}</strong>
+                      <div style="font-size: 0.78rem; color: #059669;">Réf: {{ item.product.slug }}</div>
+                    </div>
+                  </td>
+                  <td style="padding: 1.2rem 0; font-weight: 600; font-size: 0.95rem;">{{ item.price }} FCFA</td>
+                  <td style="padding: 1.2rem 0;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <button class="qty-btn" onclick="updateCartQuantity('{{ item.product.id }}', {{ item.quantity|add:-1 }})">-</button>
+                      <span style="font-weight: 700; min-width: 20px; text-align: center;">{{ item.quantity }}</span>
+                      <button class="qty-btn" onclick="updateCartQuantity('{{ item.product.id }}', {{ item.quantity|add:1 }})">+</button>
+                    </div>
+                  </td>
+                  <td style="padding: 1.2rem 0; text-align: right; font-weight: 800; color: #059669; font-size: 1.05rem;">
+                    {{ item.subtotal }} FCFA
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Checkout Form Box -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-md);">
+          <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;"><i data-lucide="truck" style="color: #059669;"></i> Validation de la Commande</h3>
+          
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1.2rem; border-radius: 12px; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: #065f46;">
+              <span>Total à Payer:</span>
+              <span style="font-size: 1.4rem; color: #059669; font-family: var(--font-heading);">{{ total_amount }} FCFA</span>
+            </div>
+            <p style="font-size: 0.8rem; color: #047857; margin-top: 0.4rem;">Paiement à la livraison ou par Mobile Money disponible.</p>
+          </div>
+
+          <form id="checkout-form-page">
+            <div class="form-group">
+              <label>Nom complet *</label>
+              <input type="text" name="customer_name" class="form-control" placeholder="ex: Benjamin Eteni" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Numéro de Téléphone *</label>
+              <input type="tel" name="customer_phone" class="form-control" placeholder="+225 07 00 00 00 00" required>
+            </div>
+
+            <div class="form-group">
+              <label>Adresse Email (Optionnel)</label>
+              <input type="email" name="customer_email" class="form-control" placeholder="client@stantech.ci">
+            </div>
+
+            <div class="form-group">
+              <label>Adresse de Livraison complète *</label>
+              <input type="text" name="delivery_address" class="form-control" placeholder="Commune, Quartier, Rue" required>
+            </div>
+
+            <div class="form-group">
+              <label>Ville</label>
+              <input type="text" name="city" class="form-control" value="Abidjan">
+            </div>
+
+            <div class="form-group">
+              <label>Notes particulières pour la livraison</label>
+              <textarea name="notes" class="form-control" rows="2" placeholder="Précisions de livraison..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.05rem; margin-top: 1rem;">
+              <i data-lucide="check-circle-2"></i> Valider et Passer la Commande
+            </button>
+          </form>
+        </div>
+
+      </div>
+    {% else %}
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 5rem 2rem; text-align: center; max-width: 600px; margin: 0 auto;">
+        <i data-lucide="shopping-bag" style="width: 70px; height: 70px; color: #94a3b8; margin-bottom: 1.5rem;"></i>
+        <h2 style="color: #0f172a; margin-bottom: 0.8rem;">Votre panier est vide</h2>
+        <p style="color: #64748b; margin-bottom: 2rem;">Explorez nos équipements technologiques de pointe et ajoutez vos articles.</p>
+        <a href="{% url 'boutique' %}" class="btn btn-primary" style="padding: 0.85rem 2rem;">
+          Découvrir la Boutique STANTECH <i data-lucide="arrow-right"></i>
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const pageForm = document.getElementById('checkout-form-page');
+    if (pageForm) {
+      pageForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(pageForm);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/api/checkout/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+          },
+          body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            alert(`Succès ! Votre commande N° ${res.order_number} a été enregistrée chez STANTECH avec succès. Notre équipe va prendre contact avec vous.`);
+            window.location.href = "{% url 'boutique' %}";
+          } else {
+            alert(res.message || 'Erreur lors de la validation');
+          }
+        });
+      });
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,662 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SEO Base Meta Tags -->
+  <title>{% block title %}STANTECH | Solutions Technologiques & Ingénierie{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}STANTECH - Leader des solutions informatiques, cybersécurité, IoT industriel et boutique de matériel technologique de pointe à Douala et Abidjan.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}STANTECH, solutions IT, ingénierie informatique, cybersécurité, matériel informatique, IoT industriel, Douala, Cameroun, Côte d'Ivoire, boutique tech{% endblock %}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+  <!-- Open Graph Meta Tags (Facebook, LinkedIn, WhatsApp) -->
+  <meta property="og:site_name" content="STANTECH Enterprise">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}STANTECH | Solutions Technologiques & Ingénierie{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}STANTECH - Leader des solutions informatiques, cybersécurité, IoT industriel et matériel de pointe.{% endblock %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'js/lucide.min.js' %}{% endblock %}">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}STANTECH | Solutions Technologiques & Ingénierie{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}STANTECH - Leader des solutions informatiques, cybersécurité et boutique tech.{% endblock %}">
+
+  <!-- JSON-LD Structured Data (Schema.org / Organization & LocalBusiness) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["Organization", "LocalBusiness"],
+    "name": "STANTECH Enterprise",
+    "url": "{{ request.scheme }}://{{ request.get_host }}",
+    "description": "Leader des solutions informatiques, cybersécurité, IoT industriel et matériel technologique de pointe.",
+    "telephone": "+237674861509",
+    "email": "contact@stantech.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Douala",
+      "addressCountry": "CM"
+    },
+    "sameAs": [
+      "https://wa.me/237674861509"
+    ]
+  }
+  </script>
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <!-- Lucide Icons (Local) -->
+  <script src="{% static 'js/lucide.min.js' %}"></script>
+
+  <!-- Dark mode pre-load (évite le flash blanc) -->
+  <script>
+    if (localStorage.getItem('stantech-theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
+
+  <style>
+    /* ── BARRE DE PROGRESSION DE LECTURE ── */
+    #read-progress {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      height: 3px; width: 0%;
+      background: linear-gradient(90deg, #059669, #34d399, #10b981);
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(16,185,129,0.6);
+    }
+
+    /* ── CURSEUR PERSONNALISÉ ── */
+    body { cursor: none; }
+    #cursor-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #10b981;
+      position: fixed; z-index: 99999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease;
+    }
+    #cursor-ring {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid rgba(16,185,129,0.5);
+      position: fixed; z-index: 99998;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    }
+    #cursor-ring.hovered { width: 48px; height: 48px; border-color: rgba(16,185,129,0.8); background: rgba(16,185,129,0.08); }
+    a, button, [onclick], label { cursor: none; }
+
+    /* ── MODE SOMBRE ── */
+    [data-theme="dark"] {
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --glass-bg: rgba(15,23,42,0.92);
+    }
+    [data-theme="dark"] body { background: #0f172a; color: #f1f5f9; }
+    [data-theme="dark"] .navbar { background: rgba(15,23,42,0.95); border-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .services-section,
+    [data-theme="dark"] .shop-section { background: #1e293b; }
+    [data-theme="dark"] .service-card,
+    [data-theme="dark"] .product-card,
+    [data-theme="dark"] .portfolio-card { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+    [data-theme="dark"] .service-card:hover,
+    [data-theme="dark"] .product-card:hover { background: #263348; }
+    [data-theme="dark"] .footer { background: #020617; }
+    [data-theme="dark"] .nav-link { color: #e2e8f0; }
+    [data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3,[data-theme="dark"] h4 { color: #f1f5f9; }
+    [data-theme="dark"] p { color: #94a3b8; }
+    [data-theme="dark"] .logo { color: #f1f5f9; }
+    [data-theme="dark"] .testi-card { background: #1e293b; border-color: #334155; }
+    [data-theme="dark"] .testi-text { color: #94a3b8; }
+    [data-theme="dark"] .map-section { background: #0f172a; }
+    [data-theme="dark"] .map-info-panel { background: #1e293b; border-color: #334155; }
+    [data-theme="dark"] .map-city-item { background: #263348; }
+    [data-theme="dark"] .map-city-item strong { color: #f1f5f9; }
+    [data-theme="dark"] input,.form-control,[data-theme="dark"] select,[data-theme="dark"] textarea {
+      background: #1e293b; color: #f1f5f9; border-color: #334155;
+    }
+
+    .theme-toggle-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--primary-soft); color: var(--primary);
+      border: 1px solid rgba(16,185,129,0.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: none; transition: all 0.3s ease;
+    }
+    .theme-toggle-btn:hover { background: var(--primary); color: white; transform: rotate(20deg); }
+    .theme-toggle-btn i { width: 18px; height: 18px; }
+
+    /* ── WHATSAPP BUTTON ── */
+    #whatsapp-btn {
+      position: fixed; bottom: 9rem; right: 1.2rem; z-index: 9995;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #25D366;
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 24px rgba(37,211,102,0.4);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    #whatsapp-btn:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 12px 36px rgba(37,211,102,0.55); }
+    #whatsapp-btn svg { width: 28px; height: 28px; fill: white; }
+    .whatsapp-tooltip {
+      position: absolute; right: 60px; white-space: nowrap;
+      background: #1e293b; color: white;
+      padding: 0.4rem 0.9rem; border-radius: 8px;
+      font-size: 0.78rem; font-weight: 500;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    #whatsapp-btn:hover .whatsapp-tooltip { opacity: 1; }
+
+    /* ── POP-UP CAPTURE LEADS ── */
+    #lead-popup-overlay {
+      position: fixed; inset: 0; z-index: 99990;
+      background: rgba(15,23,42,0.7); backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    #lead-popup-overlay.open { display: flex; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .lead-popup {
+      background: white; border-radius: 24px; padding: 0;
+      max-width: 480px; width: 90%; overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+      animation: popupSlide 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes popupSlide { from{transform:scale(0.85) translateY(30px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+    .popup-top {
+      background: linear-gradient(135deg, #059669, #10b981);
+      padding: 2rem 2rem 1.5rem;
+      text-align: center; position: relative;
+    }
+    .popup-close-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: rgba(255,255,255,0.2); border: none; color: white;
+      width: 30px; height: 30px; border-radius: 50%; cursor: none;
+      font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .popup-emoji { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+    .popup-top h2 { color: white; font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .popup-top p { color: rgba(255,255,255,0.85); font-size: 0.9rem; }
+    .popup-body { padding: 1.75rem 2rem; }
+    .popup-body label { display: block; font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 0.4rem; }
+    .popup-body input {
+      width: 100%; padding: 0.8rem 1rem;
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 0.9rem; outline: none; margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    .popup-body input:focus { border-color: #059669; }
+    .popup-submit {
+      width: 100%; padding: 0.9rem;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: none;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .popup-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,185,129,0.4); }
+    .popup-skip { display: block; text-align: center; margin-top: 0.75rem; font-size: 0.8rem; color: #94a3b8; cursor: none; }
+    .popup-skip:hover { color: #64748b; }
+
+    /* ── VIDEO MODAL ── */
+    #video-modal-overlay {
+      position: fixed; inset: 0; z-index: 99991;
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #video-modal-overlay.open { display: flex; }
+    .video-modal-inner {
+      width: 90%; max-width: 860px;
+      background: #000; border-radius: 16px; overflow: hidden;
+      position: relative; aspect-ratio: 16/9;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      animation: popupSlide 0.35s ease;
+    }
+    .video-modal-inner iframe { width: 100%; height: 100%; border: 0; }
+    .video-close {
+      position: absolute; top: -44px; right: 0;
+      background: rgba(255,255,255,0.1); border: none; color: white;
+      width: 36px; height: 36px; border-radius: 50%; cursor: none;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .video-close:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── COUNTDOWN TIMER ── */
+    .countdown-bar {
+      background: linear-gradient(90deg, #0f172a, #1e293b);
+      color: #f1f5f9; text-align: center;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      border-bottom: 2px solid var(--primary);
+    }
+    .countdown-bar strong { color: var(--primary-light); }
+    .countdown-digits {
+      display: inline-flex; gap: 0.4rem; align-items: center;
+    }
+    .cd-block {
+      background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 6px; padding: 0.15rem 0.5rem;
+      font-family: 'Outfit', monospace; font-weight: 700;
+      color: var(--primary-light); font-size: 1rem;
+      min-width: 36px; text-align: center;
+    }
+    .cd-sep { color: var(--primary-light); font-weight: 700; }
+    .countdown-bar a { color: var(--primary-light); text-decoration: underline; margin-left: 0.5rem; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Curseur personnalisé -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Barre de progression de lecture -->
+  <div id="read-progress"></div>
+
+  <!-- Barre de compte à rebours (offre limitée) -->
+  <div class="countdown-bar" id="countdown-bar">
+    <span>🔥 <strong>Offre spéciale</strong> : 1ère consultation IT offerte —</span>
+    <div class="countdown-digits">
+      <span class="cd-block" id="cd-h">00</span><span class="cd-sep">:</span>
+      <span class="cd-block" id="cd-m">00</span><span class="cd-sep">:</span>
+      <span class="cd-block" id="cd-s">00</span>
+    </div>
+    <a href="{% url 'contact' %}">Profiter maintenant →</a>
+    <button onclick="document.getElementById('countdown-bar').style.display='none'" style="background:none;border:none;color:#64748b;cursor:none;margin-left:0.5rem;font-size:1.1rem;">✕</button>
+  </div>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="container nav-wrapper">
+      <a href="{% url 'index' %}" class="logo" style="display:flex;align-items:center;">
+        <img src="{% static 'images/stantech_logo.svg' %}" alt="STANTECH Logo" 
+             style="height:44px; width:auto;" loading="eager">
+      </a>
+
+      <button class="mobile-toggle" aria-label="Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <ul class="nav-menu">
+        <li><a href="{% url 'index' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">Accueil</a></li>
+        <li><a href="{% url 'services' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}">Services</a></li>
+        <li><a href="{% url 'realisations' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'realisations' %}active{% endif %}">Réalisations</a>
+        </li>
+        <li><a href="{% url 'boutique' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'boutique' %}active{% endif %}">Boutique Tech</a>
+        </li>
+        <li><a href="{% url 'about' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">À propos</a></li>
+        <li><a href="{% url 'contact' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Toggle Dark Mode -->
+        <button class="theme-toggle-btn" id="theme-toggle" title="Mode sombre / clair">
+          <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+        <div class="cart-trigger" title="Voir le Panier">
+          <i data-lucide="shopping-bag"></i>
+          <span class="cart-count">{{ cart_count|default:0 }}</span>
+        </div>
+        <a href="{% url 'contact' %}" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.88rem;">
+          Devis Gratuit
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Django Messages Alert -->
+  {% if messages %}
+  <div class="container" style="margin-top: 6rem; margin-bottom: -4rem;">
+    {% for message in messages %}
+    <div class="toast"
+      style="position: relative; bottom: 0; right: 0; margin-bottom: 0.5rem; {% if message.tags == 'error' %}border-left-color: #ef4444;{% endif %}">
+      <i data-lucide="info"></i>
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Slide-Over Cart Drawer -->
+  <div class="cart-drawer-overlay">
+    <div class="cart-drawer">
+      <div class="cart-header">
+        <h3><i data-lucide="shopping-bag"></i> Mon Panier STANTECH</h3>
+        <button class="cart-close-btn">&times;</button>
+      </div>
+
+      <div class="cart-body">
+        {% if cart_count > 0 %}
+        {% for id, item in cart_items.items %}
+        <div class="cart-item">
+          <img src="{{ item.image_url }}" class="cart-item-img" alt="{{ item.name }}">
+          <div class="cart-item-details">
+            <div class="cart-item-title">{{ item.name }}</div>
+            <div class="cart-item-price">{{ item.price }} FCFA</div>
+            <div class="cart-item-qty">
+              <button class="qty-btn" onclick="updateCartQuantity('{{ id }}', {{ item.quantity|add:-1 }})">-</button>
+              <span>{{ item.quantity }}</span>
+              <button class="qty-btn" onclick="updateCartQuantity('{{ id }}', {{ item.quantity|add:1 }})">+</button>
+              <button style="margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer;"
+                onclick="updateCartQuantity('{{ id }}', 0)">
+                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+          <i data-lucide="shopping-bag" style="width: 48px; height: 48px; margin-bottom: 1rem; color: #94a3b8;"></i>
+          <p>Votre panier est actuellement vide.</p>
+          <a href="{% url 'boutique' %}" class="btn btn-outline" style="margin-top: 1rem;">Visiter la Boutique</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="cart-footer">
+        <div class="cart-summary-line">
+          <span>Sous-total:</span>
+          <span class="cart-drawer-total">{{ cart_total|default:0 }} FCFA</span>
+        </div>
+        <div style="display: flex; gap: 0.8rem;">
+          <a href="{% url 'cart' %}" class="btn btn-outline" style="flex: 1;">Voir le Panier</a>
+          <button class="btn btn-primary" style="flex: 1;" onclick="openCheckoutModal()">Commander</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div class="modal-overlay" id="quickview-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body-content">
+        <!-- Loaded dynamically via AJAX -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-content" style="max-width: 550px;">
+      <button class="modal-close"
+        onclick="document.getElementById('checkout-modal').classList.remove('active')">&times;</button>
+      <h2 style="font-size: 1.6rem; margin-bottom: 0.5rem; color: #0f172a;"><i data-lucide="check-circle"
+          style="color: #059669;"></i> Valider votre Commande</h2>
+      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">Remplissez vos informations de livraison.
+        Notre équipe vous recontactera immédiatement.</p>
+
+      <form id="checkout-form">
+        <div class="form-group">
+          <label>Nom complet *</label>
+          <input type="text" name="customer_name" class="form-control" placeholder="ex: Benjamin Eteni" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Téléphone *</label>
+            <input type="tel" name="customer_phone" class="form-control" placeholder="+225 07000000" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="customer_email" class="form-control" placeholder="client@stantech.ci">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Adresse de livraison *</label>
+          <input type="text" name="delivery_address" class="form-control" placeholder="Commune, Quartier, Rue" required>
+        </div>
+        <div class="form-group">
+          <label>Ville</label>
+          <input type="text" name="city" class="form-control" value="Abidjan">
+        </div>
+        <div class="form-group">
+          <label>Notes de commande (Optionnel)</label>
+          <textarea name="notes" class="form-control" rows="2"
+            placeholder="Indications spécifiques pour le livreur..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+          <i data-lucide="send"></i> Confirmer et Envoyer la Commande
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="{% url 'index' %}" style="display:inline-block; margin-bottom:0.75rem;">
+            <img src="{% static 'images/stantech_logo.svg' %}" alt="STANTECH Logo"
+                 style="height:42px; width:auto; filter:brightness(0) invert(1);">
+          </a>
+          <p>L'excellence technologique au service de la transformation digitale des entreprises. Ingénierie, Cloud, IoT
+            et matériel informatique d'élite.</p>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'index' %}">Accueil</a></li>
+            <li><a href="{% url 'services' %}">Nos Services</a></li>
+            <li><a href="{% url 'realisations' %}">Réalisations</a></li>
+            <li><a href="{% url 'boutique' %}">Boutique Matériel</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Entreprise</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'about' %}">À propos de STANTECH</a></li>
+            <li><a href="{% url 'contact' %}">Nous Contacter</a></li>
+            <li>
+              <a href="{% url 'dashboard_login' %}" class="footer-dashboard-link">
+                <i data-lucide="layout-dashboard" style="width:13px; height:13px; vertical-align:middle; margin-right:5px;"></i>
+                Dashboard Personnalisé
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Contact & Support</h4>
+          <ul class="footer-links" style="font-size: 0.9rem;">
+            <li style="display: flex; gap: 0.5rem; align-items: center;"><i data-lucide="map-pin"
+                style="color: #10b981;"></i> douala, Côte Cameroun</li>
+            <li style="display: flex; gap: 0.5rem; align-items: center;"><i data-lucide="phone"
+                style="color: #10b981;"></i> +237 674861509</li>
+            <li style="display: flex; gap: 0.5rem; align-items: center;"><i data-lucide="mail"
+                style="color: #10b981;"></i> contact@stantech.com</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 STANTECH Enterprise. Tous droits réservés.</p>
+        <p>Développé avec passion pour l'innovation.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bouton Dashboard Discret -->
+  <a href="{% url 'dashboard_login' %}" id="admin-secret-btn" title="Tableau de bord STANTECH">
+    <i data-lucide="layout-dashboard"></i>
+  </a>
+
+  <!-- Bouton WhatsApp -->
+  <a href="https://wa.me/237674861509?text=Bonjour%20STANTECH%2C%20je%20souhaite%20obtenir%20des%20informations%20sur%20vos%20services." id="whatsapp-btn" target="_blank" rel="noopener" title="Discuter sur WhatsApp">
+    <div class="whatsapp-tooltip">💬 Discuter sur WhatsApp</div>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <!-- Pop-up Capture de Leads -->
+  <div id="lead-popup-overlay">
+    <div class="lead-popup">
+      <div class="popup-top">
+        <button class="popup-close-btn" onclick="closeLeadPopup()">✕</button>
+        <span class="popup-emoji">🎁</span>
+        <h2>1ère Consultation GRATUITE</h2>
+        <p>Recevez une analyse de vos besoins IT par un expert STANTECH — sans engagement.</p>
+      </div>
+      <div class="popup-body">
+        <label>Votre Nom</label>
+        <input type="text" id="popup-name" placeholder="ex: Jean Dupont">
+        <label>Votre Email professionnel</label>
+        <input type="email" id="popup-email" placeholder="vous@entreprise.com">
+        <label>Votre Numéro WhatsApp</label>
+        <input type="tel" id="popup-phone" placeholder="+237 6XX XXX XXX">
+        <button class="popup-submit" onclick="submitLeadPopup()">
+          <span>🚀</span> Réserver ma consultation gratuite
+        </button>
+        <a class="popup-skip" onclick="closeLeadPopup()">Non merci, je préfère passer</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Vidéo -->
+  <div id="video-modal-overlay" onclick="closeVideoIfOutside(event)">
+    <div class="video-modal-inner" id="video-modal-inner">
+      <button class="video-close" onclick="closeVideo()">✕</button>
+      <div id="video-iframe-container"></div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+
+    /* ── CURSEUR PERSONNALISÉ ── */
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    });
+    function animateRing() {
+      rx += (mx - rx) * 0.15;
+      ry += (my - ry) * 0.15;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+    document.querySelectorAll('a, button, [onclick], label, .calc-option, .testi-btn, .map-point').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+    });
+
+    /* ── BARRE DE PROGRESSION ── */
+    window.addEventListener('scroll', () => {
+      const total = document.body.scrollHeight - window.innerHeight;
+      const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+      document.getElementById('read-progress').style.width = pct + '%';
+    });
+
+    /* ── DARK MODE TOGGLE ── */
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    function applyTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('stantech-theme', dark ? 'dark' : 'light');
+      if (themeIcon) { themeIcon.setAttribute('data-lucide', dark ? 'sun' : 'moon'); }
+      if (window.lucide) lucide.createIcons();
+    }
+    const isDark = localStorage.getItem('stantech-theme') === 'dark';
+    applyTheme(isDark);
+    if (themeToggle) themeToggle.addEventListener('click', () => {
+      applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+    });
+
+    /* ── COMPTE À REBOURS ── */
+    function startCountdown() {
+      let saved = localStorage.getItem('stantech-cd-end');
+      if (!saved || Date.now() > parseInt(saved)) {
+        saved = Date.now() + 23 * 3600000 + 47 * 60000 + 33000;
+        localStorage.setItem('stantech-cd-end', saved);
+      }
+      function tick() {
+        const diff = Math.max(0, parseInt(saved) - Date.now());
+        const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+        const cdH = document.getElementById('cd-h');
+        const cdM = document.getElementById('cd-m');
+        const cdS = document.getElementById('cd-s');
+        if (cdH) cdH.textContent = h;
+        if (cdM) cdM.textContent = m;
+        if (cdS) cdS.textContent = s;
+        if (diff > 0) setTimeout(tick, 1000);
+      }
+      tick();
+    }
+    startCountdown();
+
+    /* ── POP-UP LEADS ── */
+    function openLeadPopup() {
+      if (sessionStorage.getItem('popup-shown')) return;
+      sessionStorage.setItem('popup-shown', '1');
+      document.getElementById('lead-popup-overlay').classList.add('open');
+    }
+    function closeLeadPopup() {
+      document.getElementById('lead-popup-overlay').classList.remove('open');
+    }
+    function submitLeadPopup() {
+      const name = document.getElementById('popup-name').value.trim();
+      const email = document.getElementById('popup-email').value.trim();
+      if (!name || !email) { alert('Veuillez remplir au moins votre nom et email.'); return; }
+      closeLeadPopup();
+      const msg = document.createElement('div');
+      msg.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#059669;color:white;padding:1rem 2rem;border-radius:12px;font-weight:600;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);';
+      msg.textContent = '✅ Merci ' + name + ' ! Notre équipe vous contactera sous 24h.';
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 5000);
+    }
+    // Afficher après 30 secondes
+    setTimeout(openLeadPopup, 30000);
+
+    /* ── MODAL VIDÉO ── */
+    function openVideo(youtubeId) {
+      document.getElementById('video-iframe-container').innerHTML =
+        '<iframe src="https://www.youtube.com/embed/' + youtubeId + '?autoplay=1" allowfullscreen allow="autoplay"></iframe>';
+      document.getElementById('video-modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeVideo() {
+      document.getElementById('video-iframe-container').innerHTML = '';
+      document.getElementById('video-modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function closeVideoIfOutside(e) {
+      if (e.target === document.getElementById('video-modal-overlay')) closeVideo();
+    }
+  </script>
+</body>
+
+</html>

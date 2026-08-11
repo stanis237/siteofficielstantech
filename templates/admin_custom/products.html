@@ -1,0 +1,99 @@
+{% extends 'admin_custom/base.html' %}
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3><i data-lucide="shopping-bag"></i> Tous les Produits ({{ products.count }})</h3>
+    <div class="table-actions">
+      <form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <div class="search-group">
+          <i data-lucide="search"></i>
+          <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un produit..." class="form-control" style="width:220px;">
+        </div>
+        <select name="cat" class="form-control" style="width:180px;" onchange="this.form.submit()">
+          <option value="">Toutes catégories</option>
+          {% for cat in categories %}
+            <option value="{{ cat.slug }}" {% if cat.slug == category_filter %}selected{% endif %}>{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline"><i data-lucide="filter"></i></button>
+      </form>
+      <a href="{% url 'dashboard_product_add' %}" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter</a>
+    </div>
+  </div>
+
+  {% if products %}
+  <div class="table-responsive">
+    <table>
+      <thead><tr>
+        <th>Image</th>
+        <th>Nom</th>
+        <th>Catégorie</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Badge</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>
+            {% if p.image_url %}
+              <img src="{{ p.image_url }}" class="img-thumb" onerror="this.src='';this.style.display='none';">
+            {% else %}
+              <div style="width:40px;height:40px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#cbd5e1;">
+                <i data-lucide="image" style="width:16px;height:16px;"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            <div style="font-weight:600;">{{ p.name }}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">{{ p.short_description|truncatechars:50 }}</div>
+          </td>
+          <td>{{ p.category.name|default:"—" }}</td>
+          <td>
+            <strong>{{ p.current_price|floatformat:0 }} FCFA</strong>
+            {% if p.discount_price %}<br><s style="font-size:0.75rem;color:var(--text-muted);">{{ p.price|floatformat:0 }}</s>{% endif %}
+          </td>
+          <td>
+            {% if p.stock <= 3 %}
+              <span class="badge badge-red">{{ p.stock }}</span>
+            {% elif p.stock <= 10 %}
+              <span class="badge badge-yellow">{{ p.stock }}</span>
+            {% else %}
+              <span class="badge badge-green">{{ p.stock }}</span>
+            {% endif %}
+          </td>
+          <td>{% if p.badge %}<span class="badge badge-blue">{{ p.badge }}</span>{% else %}—{% endif %}</td>
+          <td>
+            {% if p.is_active %}<span class="badge badge-green">Actif</span>{% else %}<span class="badge badge-red">Inactif</span>{% endif %}
+            {% if p.is_featured %}<span class="badge badge-purple" style="margin-left:4px;">Vedette</span>{% endif %}
+          </td>
+          <td>
+            <div class="action-cell">
+              <a href="{% url 'dashboard_product_edit' p.pk %}" class="btn btn-outline btn-sm btn-icon" title="Modifier">
+                <i data-lucide="pencil"></i>
+              </a>
+              <form method="post" action="{% url 'dashboard_product_delete' p.pk %}" onsubmit="return confirm('Supprimer « {{ p.name }} » ?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Supprimer">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <i data-lucide="package-open"></i>
+      <h4>Aucun produit trouvé</h4>
+      <p>Commencez par ajouter votre premier produit à la boutique.</p>
+      <a href="{% url 'dashboard_product_add' %}" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter un Produit</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

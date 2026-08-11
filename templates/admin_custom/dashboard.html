@@ -1,0 +1,325 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block content %}
+
+<!-- EN-TÊTE D'ACTION DU DASHBOARD -->
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; background:white; padding:1.25rem 1.5rem; border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow);">
+  <div>
+    <h2 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--text-main); font-weight:800;">Vue d'Ensemble de l'Activité</h2>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.2rem;">Suivez les performances des ventes et la gestion de vos services STANTECH.</p>
+  </div>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+    <a href="{% url 'dashboard_export_orders_excel' %}" class="btn btn-primary" style="background:linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.2);">
+      <i data-lucide="file-spreadsheet"></i> Rapport Excel (.xlsx)
+    </a>
+    <a href="{% url 'dashboard_export_orders_pdf' %}" class="btn btn-primary" style="background:linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239,68,68,0.2);">
+      <i data-lucide="file-text"></i> Rapport PDF (.pdf)
+    </a>
+    <a href="{% url 'dashboard_export_orders' %}" class="btn btn-outline" title="Exporter CSV">
+      <i data-lucide="download"></i> CSV
+    </a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#ecfdf5;--icon-color:#059669;">
+        <i data-lucide="shopping-bag"></i>
+      </div>
+      <span class="stat-change up">Boutique</span>
+    </div>
+    <div class="stat-value">{{ total_products }}</div>
+    <div class="stat-label">Produits au total · <strong>{{ active_products }} actifs</strong></div>
+  </div>
+
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #6366f1, #8b5cf6);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#f5f3ff;--icon-color:#6366f1;">
+        <i data-lucide="briefcase"></i>
+      </div>
+      <span class="stat-change up">Services</span>
+    </div>
+    <div class="stat-value">{{ total_services }}</div>
+    <div class="stat-label">Services publiés</div>
+  </div>
+
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #f59e0b, #f97316);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#fefce8;--icon-color:#d97706;">
+        <i data-lucide="layers"></i>
+      </div>
+      <span class="stat-change up">Portfolio</span>
+    </div>
+    <div class="stat-value">{{ total_realizations }}</div>
+    <div class="stat-label">Réalisations enregistrées</div>
+  </div>
+
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #3b82f6, #06b6d4);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#eff6ff;--icon-color:#2563eb;">
+        <i data-lucide="package"></i>
+      </div>
+      {% if pending_orders %}
+        <span class="stat-change warn">{{ pending_orders }} en attente</span>
+      {% endif %}
+    </div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-label">Commandes reçues</div>
+  </div>
+
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #10b981, #34d399);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#ecfdf5;--icon-color:#059669;">
+        <i data-lucide="trending-up"></i>
+      </div>
+      <span class="stat-change up">Revenus</span>
+    </div>
+    <div class="stat-value" style="font-size:1.5rem;">{{ total_revenue|floatformat:0 }}</div>
+    <div class="stat-label">FCFA (commandes confirmées)</div>
+  </div>
+
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #ef4444, #f43f5e);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#fef2f2;--icon-color:#dc2626;">
+        <i data-lucide="mail"></i>
+      </div>
+      {% if unread_messages %}
+        <span class="stat-change warn">{{ unread_messages }} non lus</span>
+      {% endif %}
+    </div>
+    <div class="stat-value">{{ unread_messages }}</div>
+    <div class="stat-label">Messages non lus</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     GRAPHIQUE INTERACTIF DE VENTES (CHART.JS)
+     ============================================================ -->
+<div class="table-card" style="margin-bottom:1.5rem; padding:1.5rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+    <h3 style="font-family:var(--font-heading); font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; color:var(--text-main);">
+      <i data-lucide="bar-chart-3" style="color:var(--primary);"></i> Analyse des Ventes & Revenus (6 derniers mois)
+    </h3>
+    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">Mise à jour en temps réel</span>
+  </div>
+  <div style="position:relative; height:280px; width:100%;">
+    <canvas id="salesChart"></canvas>
+  </div>
+</div>
+
+<!-- RECENT ORDERS + LOW STOCK -->
+<div class="dash-grid-3" style="margin-bottom:1.5rem;">
+  <!-- Recent Orders -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3><i data-lucide="package"></i> Dernières Commandes</h3>
+      <a href="{% url 'dashboard_orders' %}" class="btn btn-outline btn-sm">Voir tout</a>
+    </div>
+    {% if recent_orders %}
+    <table>
+      <thead><tr>
+        <th>N°</th><th>Client</th><th>Total</th><th>Statut</th>
+      </tr></thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td>
+            <a href="{% url 'dashboard_order_detail' order.pk %}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+              #{{ order.order_number }}
+            </a>
+          </td>
+          <td>{{ order.customer_name }}</td>
+          <td><strong>{{ order.total_amount|floatformat:0 }}</strong> FCFA</td>
+          <td>
+            {% if order.status == 'pending' %}<span class="badge badge-yellow">En attente</span>
+            {% elif order.status == 'confirmed' %}<span class="badge badge-blue">Confirmée</span>
+            {% elif order.status == 'shipped' %}<span class="badge badge-purple">En livraison</span>
+            {% elif order.status == 'delivered' %}<span class="badge badge-green">Livrée</span>
+            {% else %}<span class="badge badge-red">Annulée</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty-state"><i data-lucide="package"></i><p>Aucune commande pour l'instant.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- Low Stock + Messages -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <!-- Low Stock -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i data-lucide="alert-triangle"></i> Stock Faible</h3>
+        <a href="{% url 'dashboard_products' %}" class="btn btn-outline btn-sm">Boutique</a>
+      </div>
+      {% if low_stock_products %}
+        <div style="padding:0.5rem 0;">
+          {% for p in low_stock_products %}
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1rem;border-bottom:1px solid #f1f5f9;">
+            {% if p.image_url %}
+              <img src="{{ p.image_url }}" class="img-thumb" onerror="this.style.display='none'">
+            {% endif %}
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">{{ p.price }} FCFA</div>
+            </div>
+            <span class="badge badge-red">{{ p.stock }} restants</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:1.5rem;"><i data-lucide="check-circle"></i><p style="font-size:0.8rem;">Stocks OK !</p></div>
+      {% endif %}
+    </div>
+
+    <!-- Unread Messages -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i data-lucide="mail"></i> Messages Récents</h3>
+        <a href="{% url 'dashboard_messages' %}" class="btn btn-outline btn-sm">Voir tout</a>
+      </div>
+      {% if recent_messages %}
+        <div style="padding:0.5rem 0;">
+          {% for m in recent_messages %}
+          <a href="{% url 'dashboard_message_read' m.pk %}" style="display:flex;flex-direction:column;gap:0.2rem;padding:0.7rem 1rem;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:0.8rem;font-weight:600;">{{ m.name }}</span>
+              <span style="font-size:0.7rem;color:var(--text-muted);">{{ m.created_at|date:"d M H:i" }}</span>
+            </div>
+            <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.subject }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:1.5rem;"><i data-lucide="inbox"></i><p style="font-size:0.8rem;">Aucun message non lu.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="table-card">
+  <div class="table-header">
+    <h3><i data-lucide="zap"></i> Actions Rapides</h3>
+  </div>
+  <div style="padding:1.25rem;display:flex;flex-wrap:wrap;gap:1rem;">
+    <a href="{% url 'dashboard_product_add' %}" class="btn btn-primary">
+      <i data-lucide="plus"></i> Nouveau Produit
+    </a>
+    <a href="{% url 'dashboard_service_add' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 2px 8px rgba(99,102,241,0.3);">
+      <i data-lucide="plus"></i> Nouveau Service
+    </a>
+    <a href="{% url 'dashboard_realisation_add' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 2px 8px rgba(245,158,11,0.3);">
+      <i data-lucide="plus"></i> Nouvelle Réalisation
+    </a>
+    <a href="{% url 'dashboard_orders' %}?status=pending" class="btn btn-outline">
+      <i data-lucide="clock"></i> Commandes en Attente
+    </a>
+    <a href="{% url 'dashboard_messages' %}" class="btn btn-outline">
+      <i data-lucide="mail"></i> Lire les Messages
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chargement de Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Récupération des données depuis le contexte Django
+    const labels = JSON.parse('{{ chart_labels|safe }}');
+    const revenues = JSON.parse('{{ chart_revenue|safe }}');
+    const counts = JSON.parse('{{ chart_count|safe }}');
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Dégradé de couleur pour la courbe de revenus
+    const revenueGradient = ctx.createLinearGradient(0, 0, 0, 250);
+    revenueGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+    revenueGradient.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Revenus (FCFA)',
+            data: revenues,
+            borderColor: '#10b981',
+            borderWidth: 3,
+            backgroundColor: revenueGradient,
+            fill: true,
+            tension: 0.35,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Nombre de commandes',
+            data: counts,
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: false,
+            tension: 0.1,
+            yAxisID: 'y1',
+            type: 'bar',
+            barThickness: 16
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              boxWidth: 12,
+              font: { family: 'Inter', size: 12, weight: '500' }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleFont: { family: 'Inter', size: 13, weight: '600' },
+            bodyFont: { family: 'Inter', size: 12 },
+            padding: 10,
+            cornerRadius: 8
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            grid: { color: '#e2e8f0' },
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString('fr-FR') + ' FCFA';
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            grid: { drawOnChartArea: false }, // avoid grid overlapping
+            ticks: {
+              stepSize: 1,
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

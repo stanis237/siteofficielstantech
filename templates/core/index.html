@@ -1,0 +1,1741 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}STANTECH | Solutions Technologiques, Ingénierie & Boutique Tech{% endblock %}
+
+{% block content %}
+
+<!-- ========================================================
+     1. NOTIFICATIONS SOCIALES FLOTTANTES (urgence/preuve sociale)
+     ======================================================== -->
+<div id="social-notif" style="
+  position: fixed; bottom: 5rem; left: 1.5rem; z-index: 9998;
+  display: flex; flex-direction: column; gap: 0.6rem; pointer-events: none;">
+</div>
+
+<!-- Hero Section -->
+<section class="hero-section reveal">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <span class="badge badge-primary" style="margin-bottom: 1.2rem;">
+        <i data-lucide="sparkles"></i> L'EXCELLENCE TECHNOLOGIQUE SANS COMPROMIS
+      </span>
+      <h1>Innover. Automatiser. <span>Propulser</span> votre Entreprise.</h1>
+      <p>STANTECH accompagne la transformation digitale des organisations grâce à des solutions logicielles sur-mesure, des infrastructures Cloud sécurisées, des systèmes IoT industriels et une boutique spécialisée en matériel de haute technologie.</p>
+
+      <div class="hero-cta" style="flex-wrap: wrap; gap: 1rem;">
+        <a href="{% url 'services' %}" class="btn btn-primary">
+          Nos Services <i data-lucide="arrow-right"></i>
+        </a>
+        <a href="#devis-calculator" class="btn btn-outline" onclick="scrollToCalc(event)">
+          <i data-lucide="calculator"></i> Calculer mon Devis
+        </a>
+        <a href="#" class="btn btn-outline" onclick="openVideo('dQw4w9WgXcQ'); return false;" style="background: rgba(16, 185, 129, 0.05); border-color: var(--primary-light); color: var(--primary-light);">
+          <i data-lucide="play-circle"></i> Présentation Vidéo
+        </a>
+      </div>
+
+      <!-- =====================================================
+           2. COMPTEUR DE STATS ANIMÉ AU SCROLL
+           ===================================================== -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <h3 class="count-up" data-target="99.9" data-suffix="%" data-decimal="1">0%</h3>
+          <p>Disponibilité Serveurs</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="count-up" data-target="120" data-suffix="+">0+</h3>
+          <p>Projets Livrés</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="count-up" data-target="5" data-suffix=" ans">0 ans</h3>
+          <p>D'Expérience</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="count-up" data-target="98" data-suffix="%" data-decimal="0">0%</h3>
+          <p>Clients Satisfaits</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-image-wrapper">
+      <div class="hero-card-main">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt="STANTECH Tech Innovation">
+      </div>
+
+      <div class="floating-glass-card">
+        <div class="floating-icon">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div>
+          <strong style="font-size: 0.95rem; color: #0f172a;">Sécurité & IoT Intégré</strong>
+          <p style="font-size: 0.8rem; color: #64748b;">Infrastructure 100% Opérationnelle</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PARTENAIRES DE CONFIANCE (LOGO SLIDER INFINI)
+     ============================================================ -->
+<section class="partners-slider-section reveal">
+  <div class="container">
+    <p class="partners-title">ILS FONT CONFIANCE À L'EXPERTISE STANTECH</p>
+    <div class="partners-slider-container">
+      <div class="partners-slider-track">
+        <!-- Première série -->
+        <div class="partner-logo"><i data-lucide="cloud"></i> <span>Microsoft</span></div>
+        <div class="partner-logo"><i data-lucide="shield"></i> <span>Cisco</span></div>
+        <div class="partner-logo"><i data-lucide="cpu"></i> <span>Intel</span></div>
+        <div class="partner-logo"><i data-lucide="server"></i> <span>Huawei</span></div>
+        <div class="partner-logo"><i data-lucide="hard-drive"></i> <span>Dell Technologies</span></div>
+        <div class="partner-logo"><i data-lucide="database"></i> <span>Oracle</span></div>
+        <div class="partner-logo"><i data-lucide="lock"></i> <span>Fortinet</span></div>
+        <!-- Duplication pour défilement infini -->
+        <div class="partner-logo"><i data-lucide="cloud"></i> <span>Microsoft</span></div>
+        <div class="partner-logo"><i data-lucide="shield"></i> <span>Cisco</span></div>
+        <div class="partner-logo"><i data-lucide="cpu"></i> <span>Intel</span></div>
+        <div class="partner-logo"><i data-lucide="server"></i> <span>Huawei</span></div>
+        <div class="partner-logo"><i data-lucide="hard-drive"></i> <span>Dell Technologies</span></div>
+        <div class="partner-logo"><i data-lucide="database"></i> <span>Oracle</span></div>
+        <div class="partner-logo"><i data-lucide="lock"></i> <span>Fortinet</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Services Section -->
+<section class="services-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary">NOS DOMAINES D'EXPERTISE</span>
+      <h2>Services d'Ingénierie & IT</h2>
+      <p>Des solutions clé en main développées par nos experts pour répondre aux défis stratégiques de votre organisation.</p>
+    </div>
+
+    <div class="services-grid">
+      {% for service in featured_services %}
+        <div class="service-card">
+          <div class="service-icon">
+            <i data-lucide="{{ service.icon }}"></i>
+          </div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.short_description }}</p>
+
+          {% if service.get_features_list %}
+            <ul class="service-features-list">
+              {% for feat in service.get_features_list|slice:":3" %}
+                <li><i data-lucide="check-circle-2"></i> {{ feat }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          <a href="{% url 'services' %}" class="btn btn-outline" style="margin-top: auto; padding: 0.5rem 1rem; font-size: 0.85rem;">
+            En savoir plus <i data-lucide="chevron-right"></i>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     3. CALCULATEUR DE DEVIS INTERACTIF
+     ============================================================ -->
+<section id="devis-calculator" class="calculator-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary"><i data-lucide="calculator"></i> OUTIL GRATUIT</span>
+      <h2>Calculez votre Devis en 60 Secondes</h2>
+      <p>Sélectionnez vos besoins et obtenez une estimation instantanée. Un expert STANTECH vous contactera pour affiner le projet.</p>
+    </div>
+
+    <div class="calc-wrapper">
+      <!-- Étapes -->
+      <div class="calc-steps">
+        <div class="calc-step active" data-step="1">
+          <div class="step-num">1</div>
+          <span>Type de projet</span>
+        </div>
+        <div class="calc-step-line"></div>
+        <div class="calc-step" data-step="2">
+          <div class="step-num">2</div>
+          <span>Options</span>
+        </div>
+        <div class="calc-step-line"></div>
+        <div class="calc-step" data-step="3">
+          <div class="step-num">3</div>
+          <span>Estimation</span>
+        </div>
+      </div>
+
+      <!-- Panneau Étape 1 -->
+      <div class="calc-panel" id="calc-step-1">
+        <h3 class="calc-panel-title">Quel type de projet souhaitez-vous ?</h3>
+        <div class="calc-options-grid">
+          <label class="calc-option" data-base="500000">
+            <input type="radio" name="project_type" value="website">
+            <div class="calc-option-inner">
+              <i data-lucide="globe"></i>
+              <strong>Site Web / App</strong>
+              <span>Vitrine, e-commerce, portail</span>
+            </div>
+          </label>
+          <label class="calc-option" data-base="1500000">
+            <input type="radio" name="project_type" value="cloud">
+            <div class="calc-option-inner">
+              <i data-lucide="cloud"></i>
+              <strong>Infrastructure Cloud</strong>
+              <span>Serveurs, VPN, hébergement</span>
+            </div>
+          </label>
+          <label class="calc-option" data-base="2000000">
+            <input type="radio" name="project_type" value="iot">
+            <div class="calc-option-inner">
+              <i data-lucide="cpu"></i>
+              <strong>IoT Industriel</strong>
+              <span>Capteurs, automatisation</span>
+            </div>
+          </label>
+          <label class="calc-option" data-base="800000">
+            <input type="radio" name="project_type" value="security">
+            <div class="calc-option-inner">
+              <i data-lucide="shield"></i>
+              <strong>Cybersécurité</strong>
+              <span>Audit, protection, formation</span>
+            </div>
+          </label>
+          <label class="calc-option" data-base="300000">
+            <input type="radio" name="project_type" value="support">
+            <div class="calc-option-inner">
+              <i data-lucide="headphones"></i>
+              <strong>Support & Maintenance</strong>
+              <span>Contrat, assistance, MCO</span>
+            </div>
+          </label>
+          <label class="calc-option" data-base="1000000">
+            <input type="radio" name="project_type" value="erp">
+            <div class="calc-option-inner">
+              <i data-lucide="database"></i>
+              <strong>ERP / Logiciel Métier</strong>
+              <span>Gestion, RH, comptabilité</span>
+            </div>
+          </label>
+        </div>
+        <div style="text-align:center; margin-top:1.5rem;">
+          <button class="btn btn-primary" onclick="calcNextStep(2)" id="calc-btn-1" disabled>
+            Continuer <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panneau Étape 2 -->
+      <div class="calc-panel hidden" id="calc-step-2">
+        <h3 class="calc-panel-title">Précisez vos besoins</h3>
+        <div class="calc-sliders">
+          <div class="calc-slider-group">
+            <label>
+              <i data-lucide="users"></i>
+              Nombre d'utilisateurs : <strong id="users-val">10</strong>
+            </label>
+            <input type="range" id="users-slider" min="1" max="200" value="10" step="5"
+                   oninput="document.getElementById('users-val').textContent=this.value; calcEstimate()">
+          </div>
+          <div class="calc-slider-group">
+            <label>
+              <i data-lucide="calendar"></i>
+              Durée du projet : <strong id="duration-val">3</strong> mois
+            </label>
+            <input type="range" id="duration-slider" min="1" max="24" value="3" step="1"
+                   oninput="document.getElementById('duration-val').textContent=this.value; calcEstimate()">
+          </div>
+          <div class="calc-slider-group">
+            <label>
+              <i data-lucide="zap"></i>
+              Niveau d'urgence : <strong id="urgency-val">Normal</strong>
+            </label>
+            <input type="range" id="urgency-slider" min="1" max="3" value="1" step="1"
+                   oninput="updateUrgencyLabel(this.value); calcEstimate()">
+          </div>
+        </div>
+        <!-- Options supplémentaires -->
+        <div class="calc-extras">
+          <label class="calc-extra-check">
+            <input type="checkbox" id="extra-maintenance" onchange="calcEstimate()">
+            <span><i data-lucide="tool"></i> Maintenance annuelle (+15%)</span>
+          </label>
+          <label class="calc-extra-check">
+            <input type="checkbox" id="extra-training" onchange="calcEstimate()">
+            <span><i data-lucide="graduation-cap"></i> Formation équipe (+10%)</span>
+          </label>
+          <label class="calc-extra-check">
+            <input type="checkbox" id="extra-sla" onchange="calcEstimate()">
+            <span><i data-lucide="clock"></i> SLA prioritaire 24/7 (+20%)</span>
+          </label>
+        </div>
+        <div style="display:flex; gap:1rem; justify-content:center; margin-top:1.5rem;">
+          <button class="btn btn-outline" onclick="calcNextStep(1)">
+            <i data-lucide="arrow-left"></i> Retour
+          </button>
+          <button class="btn btn-primary" onclick="calcNextStep(3)">
+            Voir mon estimation <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panneau Étape 3 : Résultat -->
+      <div class="calc-panel hidden" id="calc-step-3">
+        <div class="calc-result">
+          <div class="calc-result-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <p class="calc-result-label">Estimation STANTECH</p>
+          <div class="calc-result-range">
+            <span id="result-min">—</span>
+            <span class="calc-dash">à</span>
+            <span id="result-max">—</span>
+            <span style="font-size:1rem; color:#64748b; font-weight:500;">FCFA</span>
+          </div>
+          <p class="calc-result-note">
+            <i data-lucide="info"></i>
+            Estimation indicative. Un ingénieur STANTECH établira un devis précis et gratuit sous 24h.
+          </p>
+          <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:1.5rem;">
+            <a href="{% url 'contact' %}" class="btn btn-primary" style="padding:0.85rem 2rem;">
+              <i data-lucide="send"></i> Demander un devis officiel
+            </a>
+            <button class="btn btn-outline" onclick="calcReset()">
+              <i data-lucide="refresh-cw"></i> Recommencer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Featured Realizations / Portfolio -->
+<section class="realizations-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary">PORTFOLIO</span>
+      <h2>Nos Dernières Réalisations</h2>
+      <p>Découvrez comment STANTECH concrétise des projets ambitieux pour des clients exigeants.</p>
+    </div>
+
+    <div class="portfolio-grid">
+      {% for real in featured_realizations %}
+        <div class="portfolio-card">
+          <div class="portfolio-img">
+            <img src="{{ real.image_url }}" alt="{{ real.title }}">
+            <div class="portfolio-overlay">
+              <span class="badge badge-accent">{{ real.category.name|default:"Projet STANTECH" }}</span>
+            </div>
+          </div>
+          <div class="portfolio-content">
+            <h3>{{ real.title }}</h3>
+            <p>{{ real.short_description }}</p>
+            {% if real.get_tech_tags %}
+              <div class="tech-tags">
+                {% for tag in real.get_tech_tags %}
+                  <span class="tag">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 3rem;">
+      <a href="{% url 'realisations' %}" class="btn btn-dark">
+        Voir Toutes nos Réalisations <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     GRILLE DE TARIFS INTERACTIVE (PRICING)
+     ============================================================ -->
+<section class="pricing-section reveal" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary"><i data-lucide="tag"></i> TARIFS DE SUPPORT</span>
+      <h2>Contrats de Maintenance & Support IT</h2>
+      <p>Bénéficiez de la réactivité et de l'expertise des équipes d'ingénierie STANTECH au quotidien.</p>
+      
+      <!-- Toggle Mensuel/Annuel -->
+      <div class="pricing-toggle-container">
+        <span>Mensuel</span>
+        <button class="pricing-toggle-btn" id="pricing-toggle" onclick="togglePricing()">
+          <span class="pricing-toggle-ball"></span>
+        </button>
+        <span class="pricing-annual-label">Annuel <strong class="pricing-discount-badge">Économisez 15%</strong></span>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Pack Standard -->
+      <div class="pricing-card">
+        <div class="pricing-card-header">
+          <h3>Standard IT</h3>
+          <p>Pour les TPE & petites structures</p>
+          <div class="pricing-price-box">
+            <span class="price-val" data-monthly="150 000" data-yearly="127 500">150 000</span>
+            <span class="price-unit">FCFA/mois</span>
+          </div>
+        </div>
+        <div class="pricing-card-body">
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Support email & tél (Lundi-Vendredi 8h-18h)</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Temps de réponse sous 4h ouvrées</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> 1 sauvegarde Cloud mensuelle de sécurité</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Maintenance préventive (1 fois/mois)</li>
+            <li class="disabled"><i data-lucide="x" class="pricing-x-icon"></i> SLA garanti 99.9%</li>
+            <li class="disabled"><i data-lucide="x" class="pricing-x-icon"></i> Ingénieur dédié sur site</li>
+          </ul>
+          <a href="{% url 'contact' %}?subject=Contrat%20Standard%20IT" class="btn btn-outline" style="width:100%; margin-top:2rem;">Choisir cette offre</a>
+        </div>
+      </div>
+
+      <!-- Pack Professionnel (Featured) -->
+      <div class="pricing-card featured">
+        <div class="pricing-badge">RECOMMANDÉ</div>
+        <div class="pricing-card-header">
+          <h3>Pro Workspace</h3>
+          <p>Idéal pour PME en pleine croissance</p>
+          <div class="pricing-price-box">
+            <span class="price-val" data-monthly="350 000" data-yearly="297 500">350 000</span>
+            <span class="price-unit">FCFA/mois</span>
+          </div>
+        </div>
+        <div class="pricing-card-body">
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Support 24/7 critique + assistance prioritaire</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Temps de réponse garanti sous 1h</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Sauvegarde Cloud quotidienne & redondance</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Maintenance préventive hebdomadaire</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Protection Antivirus & Firewall managés</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Déplacement ingénieur sous 2h max</li>
+          </ul>
+          <a href="{% url 'contact' %}?subject=Contrat%20Pro%20Workspace" class="btn btn-primary" style="width:100%; margin-top:2rem;">Activer ce Plan</a>
+        </div>
+      </div>
+
+      <!-- Pack Enterprise -->
+      <div class="pricing-card">
+        <div class="pricing-card-header">
+          <h3>Elite Enterprise</h3>
+          <p>Pour infrastructures critiques & IoT</p>
+          <div class="pricing-price-box">
+            <span class="price-val" data-monthly="750 000" data-yearly="637 500">750 000</span>
+            <span class="price-unit">FCFA/mois</span>
+          </div>
+        </div>
+        <div class="pricing-card-body">
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Support dédié & ingénieur attitré</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Intervention immédiate sur site ou à distance</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Audit de sécurité trimestriel inclus</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Supervision IoT & supervision réseau en temps réel</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> PRA (Plan de Reprise d'Activité) garanti</li>
+            <li><i data-lucide="check" class="pricing-check-icon"></i> Matériel de secours mis à disposition</li>
+          </ul>
+          <a href="{% url 'contact' %}?subject=Contrat%20Elite%20Enterprise" class="btn btn-outline" style="width:100%; margin-top:2rem;">Demander une Démo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     4. SECTION TÉMOIGNAGES ANIMÉE (carrousel)
+     ============================================================ -->
+<section class="testimonials-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary"><i data-lucide="star"></i> TÉMOIGNAGES</span>
+      <h2>Ce que Disent Nos Clients</h2>
+      <p>Des centaines d'entreprises font confiance à STANTECH pour leur transformation digitale.</p>
+    </div>
+
+    <div class="testimonials-track-wrap">
+      <div class="testimonials-track" id="testi-track">
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"STANTECH a déployé notre infrastructure cloud en moins de 3 semaines. Fiabilité et professionnalisme exemplaires."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">DK</div>
+            <div>
+              <strong>Didier Kamga</strong>
+              <span>DSI, BanquePro Cameroun</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Notre système IoT de supervision industrielle tourne parfaitement depuis 8 mois. ROI visible dès le 2ème mois !"</p>
+          <div class="testi-author">
+            <div class="testi-avatar">AM</div>
+            <div>
+              <strong>Aboubakar Maïga</strong>
+              <span>Directeur Usine, CimAfrique</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"L'équipe STANTECH a livré notre portail e-commerce en 6 semaines. Les ventes ont augmenté de 40% le premier trimestre."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">CF</div>
+            <div>
+              <strong>Christelle Fouda</strong>
+              <span>CEO, MarketPlace237</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Audit de cybersécurité très complet. Nos équipes ont été formées et nos systèmes sont maintenant protégés efficacement."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">JN</div>
+            <div>
+              <strong>Jean Nkurunziza</strong>
+              <span>RSSI, Groupe Telecom+</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Support technique 24/7 exceptionnel. Chaque problème est résolu en moins d'une heure. Indispensable pour notre activité."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">SB</div>
+            <div>
+              <strong>Sandrine Bello</strong>
+              <span>DG, Hôtel Prestige Yaoundé</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <button class="testi-btn testi-prev" onclick="testiSlide(-1)"><i data-lucide="chevron-left"></i></button>
+      <button class="testi-btn testi-next" onclick="testiSlide(1)"><i data-lucide="chevron-right"></i></button>
+    </div>
+
+    <!-- Indicateurs -->
+    <div class="testi-dots" id="testi-dots"></div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     5. CARTE INTERACTIVE DE PRÉSENCE
+     ============================================================ -->
+<section class="map-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-primary"><i data-lucide="map-pin"></i> PRÉSENCE RÉGIONALE</span>
+      <h2>STANTECH en Afrique Centrale & de l'Ouest</h2>
+      <p>Nos équipes interviennent sur l'ensemble du territoire camerounais et dans plusieurs pays de la sous-région.</p>
+    </div>
+
+    <div class="map-wrapper">
+      <div class="map-visual">
+        <!-- SVG schématique des zones d'intervention -->
+        <div class="map-svg-container">
+          <!-- Points de présence animés -->
+          <div class="map-point active" style="top:45%; left:52%;" data-city="Douala" data-desc="Siège principal — Hub technologique">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 Douala</strong><br>Siège Social STANTECH<br>Hub Tech Cameroun</div>
+          </div>
+          <div class="map-point" style="top:35%; left:58%;" data-city="Yaoundé" data-desc="Bureau régional — Support & Formation">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 Yaoundé</strong><br>Bureau Régional<br>Support & Formation</div>
+          </div>
+          <div class="map-point" style="top:28%; left:42%;" data-city="Bafoussam" data-desc="Équipe IoT & Industrie">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 Bafoussam</strong><br>Équipe IoT Industrie</div>
+          </div>
+          <div class="map-point" style="top:60%; left:38%;" data-city="Kribi" data-desc="Projets côtiers & énergie">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 Kribi</strong><br>Projets côtiers & énergie</div>
+          </div>
+          <div class="map-point secondary" style="top:22%; left:30%;" data-city="Abidjan" data-desc="Partenaire Côte d'Ivoire">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 Abidjan</strong><br>Partenaire Côte d'Ivoire</div>
+          </div>
+          <div class="map-point secondary" style="top:18%; left:62%;" data-city="N'Djamena" data-desc="Mission Tchad">
+            <div class="map-pulse"></div>
+            <div class="map-dot"></div>
+            <div class="map-tooltip"><strong>📍 N'Djamena</strong><br>Mission Tchad</div>
+          </div>
+
+          <!-- Fond carte stylisé -->
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Africa_%28orthographic_projection%29.svg/400px-Africa_%28orthographic_projection%29.svg.png"
+               alt="Carte Afrique STANTECH" class="map-bg-img">
+        </div>
+      </div>
+
+      <div class="map-info-panel">
+        <h3><i data-lucide="globe-2"></i> Zones d'Intervention</h3>
+        <div class="map-city-list">
+          <div class="map-city-item main">
+            <div class="city-dot"></div>
+            <div>
+              <strong>Douala</strong>
+              <span>Siège Principal</span>
+            </div>
+          </div>
+          <div class="map-city-item main">
+            <div class="city-dot"></div>
+            <div>
+              <strong>Yaoundé</strong>
+              <span>Bureau Régional</span>
+            </div>
+          </div>
+          <div class="map-city-item main">
+            <div class="city-dot"></div>
+            <div>
+              <strong>Bafoussam</strong>
+              <span>Équipe IoT</span>
+            </div>
+          </div>
+          <div class="map-city-item main">
+            <div class="city-dot"></div>
+            <div>
+              <strong>Kribi</strong>
+              <span>Projets Énergie</span>
+            </div>
+          </div>
+          <div class="map-city-item secondary">
+            <div class="city-dot secondary"></div>
+            <div>
+              <strong>Abidjan</strong>
+              <span>Partenaire CI</span>
+            </div>
+          </div>
+          <div class="map-city-item secondary">
+            <div class="city-dot secondary"></div>
+            <div>
+              <strong>N'Djamena</strong>
+              <span>Mission Tchad</span>
+            </div>
+          </div>
+        </div>
+        <div class="map-stats">
+          <div class="map-stat">
+            <strong>6</strong><span>Villes</span>
+          </div>
+          <div class="map-stat">
+            <strong>3</strong><span>Pays</span>
+          </div>
+          <div class="map-stat">
+            <strong>120+</strong><span>Clients</span>
+          </div>
+        </div>
+        <a href="{% url 'contact' %}" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+          <i data-lucide="phone"></i> Nous Contacter
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Boutique Tech Section -->
+<section class="shop-section reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge-accent">BOUTIQUE EN LIGNE</span>
+      <h2>Matériel Technologique STANTECH</h2>
+      <p>Equipements réseau, serveurs, capteurs IoT et stations de travail certifiés disponibles en livraison rapide.</p>
+    </div>
+
+    <div class="products-grid">
+      {% for product in featured_products %}
+        <div class="product-card" data-name="{{ product.name }}" data-category="{{ product.category.slug|default:'all' }}">
+          {% if product.badge %}
+            <span class="badge badge-accent product-badge-tag">{{ product.badge }}</span>
+          {% endif %}
+
+          <div class="product-image">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            <button class="product-quick-view" onclick="openQuickView('{{ product.id }}')" title="Aperçu rapide">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+
+          <div class="product-body">
+            <span class="product-category">{{ product.category.name|default:"Matériel" }}</span>
+            <h3 class="product-title">
+              <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+            </h3>
+
+            <div class="product-rating">
+              <i data-lucide="star" style="fill: #f59e0b; width: 14px; height: 14px;"></i>
+              <strong style="color: #1e293b;">{{ product.rating }}</strong>
+              <span>({{ product.reviews_count }} avis)</span>
+            </div>
+
+            <p class="product-desc">{{ product.short_description }}</p>
+
+            <div class="product-footer">
+              <div class="price-box">
+                {% if product.discount_price %}
+                  <span class="price-current">{{ product.discount_price }} FCFA</span>
+                  <span class="price-old">{{ product.price }} FCFA</span>
+                {% else %}
+                  <span class="price-current">{{ product.price }} FCFA</span>
+                {% endif %}
+              </div>
+
+              <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                <i data-lucide="shopping-bag"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 3.5rem;">
+      <a href="{% url 'boutique' %}" class="btn btn-primary" style="padding: 0.85rem 2rem;">
+        Accéder à la Boutique Complète <i data-lucide="shopping-bag"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     WIDGET INTERACTIF DE SUIVI DE COMMANDE
+     ============================================================ -->
+<section class="order-tracking-section reveal" id="order-tracking">
+  <div class="container">
+    <div class="tracking-card">
+      <div class="tracking-card-header">
+        <i data-lucide="package" style="width:36px; height:36px; color:#10b981;"></i>
+        <div>
+          <h3>Suivi de commande STANTECH</h3>
+          <p>Entrez votre numéro de commande pour connaître l'avancement de votre livraison en temps réel.</p>
+        </div>
+      </div>
+      <div class="tracking-search-box">
+        <input type="text" id="order-search-input" placeholder="ex: ST-B3F8D2E1" onkeydown="if(event.key==='Enter') searchOrder()">
+        <button class="btn btn-primary" onclick="searchOrder()">Rechercher</button>
+      </div>
+
+      <!-- Résultat de la recherche -->
+      <div id="tracking-result" class="hidden">
+        <div class="tracking-result-details">
+          <div>Client : <strong id="track-cust-name">—</strong></div>
+          <div>Date de commande : <strong id="track-order-date">—</strong></div>
+          <div>Total : <strong id="track-order-total">—</strong></div>
+        </div>
+
+        <div class="tracking-status-bar">
+          <div class="tracking-status-progress" id="track-progress-bar"></div>
+        </div>
+
+        <div class="tracking-steps">
+          <div class="track-step" id="step-pending">
+            <div class="track-step-dot">1</div>
+            <span>En attente</span>
+          </div>
+          <div class="track-step" id="step-confirmed">
+            <div class="track-step-dot">2</div>
+            <span>Préparation</span>
+          </div>
+          <div class="track-step" id="step-shipped">
+            <div class="track-step-dot">3</div>
+            <span>En livraison</span>
+          </div>
+          <div class="track-step" id="step-delivered">
+            <div class="track-step-dot">4</div>
+            <span>Livré</span>
+          </div>
+        </div>
+
+        <div id="track-items-list" style="margin-top:1.5rem; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:1rem;">
+          <strong>Articles inclus :</strong>
+          <ul id="track-items-ul" style="list-style:disc; margin-left:1.5rem; margin-top:0.5rem; color:#475569;"></ul>
+        </div>
+      </div>
+      
+      <!-- Erreur ou Chargement -->
+      <div id="tracking-message" class="hidden"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA Section -->
+<section class="cta-section reveal">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Prêt à Concrétiser votre Projet Technologique ?</h2>
+      <p>Contactez nos ingénieurs pour un accompagnement stratégique ou un devis personnalisé sur nos équipements et services.</p>
+      <a href="{% url 'contact' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.05rem;">
+        Contacter l'Équipe STANTECH <i data-lucide="send"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     6. CHAT IA STANTECH (assistant flottant)
+     ============================================================ -->
+<div id="ai-chat-btn" onclick="toggleChat()" title="Assistant STANTECH">
+  <i data-lucide="message-circle"></i>
+  <span class="chat-notif-dot"></span>
+</div>
+
+<div id="ai-chat-window">
+  <div class="chat-header">
+    <div class="chat-avatar-wrap">
+      <div class="chat-avatar"><i data-lucide="cpu"></i></div>
+      <div>
+        <strong>Assistant STANTECH</strong>
+        <span class="chat-online"><span class="online-dot"></span>En ligne</span>
+      </div>
+    </div>
+    <button onclick="toggleChat()" class="chat-close-btn">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg bot">
+      <div class="msg-bubble">
+        👋 Bonjour ! Je suis l'assistant virtuel STANTECH.<br><br>
+        Comment puis-je vous aider aujourd'hui ?
+      </div>
+    </div>
+    <div class="chat-quick-replies" id="quick-replies">
+      <button onclick="sendQuick('💰 Demander un devis')">💰 Demander un devis</button>
+      <button onclick="sendQuick('🛠️ Nos services IT')">🛠️ Nos services IT</button>
+      <button onclick="sendQuick('📦 Boutique Tech')">📦 Boutique Tech</button>
+      <button onclick="sendQuick('📞 Nous contacter')">📞 Nous contacter</button>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter') sendChat()">
+    <button onclick="sendChat()"><i data-lucide="send"></i></button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     STYLES DES NOUVELLES SECTIONS
+     ============================================================ -->
+<style>
+/* ── PARTENAIRES LOGOS ── */
+.partners-slider-section {
+  padding: 3rem 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.partners-title {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.5rem;
+}
+.partners-slider-container {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+.partners-slider-track {
+  display: flex;
+  gap: 4rem;
+  animation: scroll-track 24s linear infinite;
+  width: max-content;
+}
+@keyframes scroll-track {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.partner-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 1.15rem;
+  font-weight: 700;
+  opacity: 0.65;
+  transition: opacity 0.3s;
+}
+.partner-logo:hover { opacity: 1; color: var(--primary); }
+.partner-logo i { width: 24px; height: 24px; color: var(--primary-light); }
+
+/* ── SCROLL REVEAL EFFECT ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── CALCULATEUR ── */
+.calculator-section {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  position: relative;
+  overflow: hidden;
+}
+.calculator-section::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.calculator-section .section-header h2,
+.calculator-section .section-header p { color: #f1f5f9; }
+.calculator-section .section-header .badge-primary { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); }
+
+.calc-wrapper {
+  max-width: 760px; margin: 0 auto;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 2.5rem;
+  backdrop-filter: blur(12px);
+}
+.calc-steps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 2.5rem;
+}
+.calc-step {
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  color: #475569;
+}
+.calc-step.active .step-num { background: var(--primary); box-shadow: 0 0 16px var(--primary-glow); }
+.calc-step.active { color: #e2e8f0; }
+.step-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem; color: white;
+  transition: all 0.3s ease;
+}
+.calc-step span { font-size: 0.75rem; font-weight: 500; }
+.calc-step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.1); max-width: 80px; margin: 0 0.5rem; }
+
+.calc-panel-title { color: #f1f5f9; font-family: 'Outfit', sans-serif; font-size: 1.2rem; margin-bottom: 1.5rem; }
+.hidden { display: none !important; }
+
+.calc-options-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem;
+}
+.calc-option { cursor: pointer; }
+.calc-option input { display: none; }
+.calc-option-inner {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  padding: 1.2rem 0.75rem;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  text-align: center;
+  transition: all 0.25s ease;
+  color: #94a3b8;
+}
+.calc-option-inner i { width: 28px; height: 28px; color: var(--primary-light); }
+.calc-option-inner strong { font-size: 0.85rem; color: #e2e8f0; }
+.calc-option-inner span { font-size: 0.72rem; }
+.calc-option input:checked + .calc-option-inner {
+  background: rgba(16,185,129,0.15);
+  border-color: var(--primary-light);
+  color: white;
+  box-shadow: 0 0 20px rgba(16,185,129,0.2);
+}
+.calc-option:hover .calc-option-inner {
+  border-color: rgba(16,185,129,0.5);
+  background: rgba(16,185,129,0.08);
+}
+
+.calc-sliders { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem; }
+.calc-slider-group label {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.9rem; color: #cbd5e1; margin-bottom: 0.5rem;
+}
+.calc-slider-group label i { width: 16px; height: 16px; color: var(--primary-light); }
+.calc-slider-group label strong { color: var(--primary-light); }
+.calc-slider-group input[type="range"] {
+  width: 100%; accent-color: var(--primary-light);
+  height: 6px; border-radius: 3px; cursor: pointer;
+}
+
+.calc-extras { display: flex; flex-direction: column; gap: 0.75rem; }
+.calc-extra-check {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+.calc-extra-check:hover { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); color: #e2e8f0; }
+.calc-extra-check input { accent-color: var(--primary-light); width: 16px; height: 16px; }
+.calc-extra-check span { display: flex; align-items: center; gap: 0.5rem; }
+.calc-extra-check i { width: 16px; height: 16px; color: var(--primary-light); }
+
+.calc-result { text-align: center; padding: 1rem 0; }
+.calc-result-icon i { width: 56px; height: 56px; color: var(--primary-light); margin: 0 auto 1rem; display: block; }
+.calc-result-label { color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.75rem; }
+.calc-result-range {
+  display: flex; align-items: baseline; justify-content: center; gap: 0.5rem;
+  font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--primary-light);
+  margin-bottom: 1rem;
+}
+.calc-dash { color: #475569; font-size: 1.5rem; }
+.calc-result-note {
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font-size: 0.8rem; color: #64748b;
+}
+.calc-result-note i { width: 14px; height: 14px; }
+
+/* ── PRICING TABLE ── */
+.pricing-section {
+  padding: 6rem 0;
+  background: var(--bg-light);
+}
+.pricing-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  background: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+}
+.pricing-toggle-btn {
+  width: 48px; height: 26px; border-radius: 999px;
+  background: #cbd5e1; border: none; cursor: pointer;
+  position: relative; transition: background 0.3s;
+}
+.pricing-toggle-btn.active { background: var(--primary); }
+.pricing-toggle-ball {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: white; position: absolute;
+  left: 3px; top: 3px; transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.pricing-toggle-btn.active .pricing-toggle-ball { transform: translateX(22px); }
+.pricing-discount-badge {
+  background: #fef3c7; color: #d97706; font-size: 0.65rem;
+  padding: 2px 6px; border-radius: 99px;
+}
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2rem; margin-top: 3.5rem;
+  align-items: stretch;
+}
+.pricing-card {
+  background: white; border: 1px solid #e2e8f0;
+  border-radius: 20px; padding: 2.5rem 2rem;
+  transition: all 0.3s ease;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.pricing-card.featured {
+  border-color: var(--primary);
+  box-shadow: 0 20px 40px rgba(5,150,105,0.1);
+  transform: translateY(-8px);
+}
+.pricing-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white; font-size: 0.68rem; font-weight: 700;
+  padding: 4px 14px; border-radius: 99px;
+  box-shadow: 0 4px 10px var(--primary-glow);
+}
+.pricing-card-header h3 { font-size: 1.4rem; color: #0f172a; margin-bottom: 0.3rem; }
+.pricing-card-header p { font-size: 0.82rem; color: #64748b; margin-bottom: 1.5rem; }
+.pricing-price-box { margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem; }
+.pricing-price-box .price-val {
+  font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #0f172a;
+  transition: all 0.2s ease;
+}
+.pricing-price-box .price-unit { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+.pricing-card.featured .pricing-price-box .price-val { color: var(--primary); }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.85rem; flex: 1; }
+.pricing-features li { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.88rem; color: #475569; }
+.pricing-features li.disabled { color: #94a3b8; text-decoration: line-through; }
+.pricing-check-icon { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; margin-top: 3px; }
+.pricing-x-icon { width: 16px; height: 16px; color: #ef4444; flex-shrink: 0; margin-top: 3px; }
+
+/* ── TRACKING COMMANDE ── */
+.order-tracking-section {
+  padding: 6rem 0;
+  background: #ffffff;
+}
+.tracking-card {
+  max-width: 680px; margin: 0 auto;
+  border: 1px solid #e2e8f0; border-radius: 20px;
+  padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+.tracking-card-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.8rem; }
+.tracking-card-header h3 { font-family: 'Outfit'; font-size: 1.25rem; color: #0f172a; }
+.tracking-card-header p { font-size: 0.85rem; color: #64748b; }
+.tracking-search-box { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+.tracking-search-box input {
+  flex: 1; padding: 0.8rem 1.2rem;
+  border: 1.5px solid #e2e8f0; border-radius: 12px;
+  font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+}
+.tracking-search-box input:focus { border-color: var(--primary); }
+.tracking-result-details {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; background: #f8fafc; border-radius: 12px;
+  padding: 1rem 1.2rem; margin-top: 2rem; font-size: 0.85rem;
+}
+.tracking-status-bar {
+  height: 6px; background: #e2e8f0; border-radius: 3px;
+  margin: 2.5rem 1rem 1.5rem; position: relative; overflow: hidden;
+}
+.tracking-status-progress {
+  height: 100%; background: var(--primary-light);
+  width: 0%; transition: width 0.8s ease;
+}
+.tracking-steps { display: flex; justify-content: space-between; }
+.track-step { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; position: relative; }
+.track-step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #cbd5e1; color: white; display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: 0.75rem;
+  transition: all 0.3s;
+}
+.track-step.active .track-step-dot { background: var(--primary-light); box-shadow: 0 0 10px var(--primary-glow); }
+.track-step span { font-size: 0.72rem; color: #64748b; font-weight: 600; }
+.track-step.active span { color: var(--primary); }
+
+#tracking-message {
+  padding: 1rem; border-radius: 10px; font-size: 0.9rem; text-align: center;
+  margin-top: 1rem;
+}
+#tracking-message.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+#tracking-message.loading { color: var(--primary); font-weight: 600; }
+
+/* ── TÉMOIGNAGES ── */
+.testimonials-section { padding: 6rem 0; background: #fff; overflow: hidden; }
+.testimonials-track-wrap { position: relative; overflow: hidden; }
+.testimonials-track {
+  display: flex; gap: 1.5rem;
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.testi-card {
+  flex: 0 0 calc(33.333% - 1rem);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+.testi-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(5,150,105,0.1); border-color: rgba(16,185,129,0.3); }
+.testi-stars { font-size: 1.2rem; color: #f59e0b; margin-bottom: 1rem; letter-spacing: 2px; }
+.testi-text { color: #475569; font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 0.75rem; }
+.testi-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+}
+.testi-author strong { display: block; font-size: 0.9rem; color: #1e293b; }
+.testi-author span { font-size: 0.78rem; color: #64748b; }
+.testi-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: white; border: 1px solid #e2e8f0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.2s ease; color: #1e293b;
+}
+.testi-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.testi-btn i { width: 20px; height: 20px; }
+.testi-prev { left: -1rem; }
+.testi-next { right: -1rem; }
+.testi-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; }
+.testi-dot {
+  width: 8px; height: 8px; border-radius: 4px;
+  background: #e2e8f0; cursor: pointer;
+  transition: all 0.3s ease;
+}
+.testi-dot.active { width: 24px; background: var(--primary); }
+
+/* ── CARTE ── */
+.map-section { padding: 6rem 0; background: var(--bg-light, #f8fafc); }
+.map-wrapper {
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: center;
+}
+.map-visual { position: relative; }
+.map-svg-container {
+  position: relative;
+  border-radius: 20px; overflow: hidden;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(16,185,129,0.2);
+  height: 380px;
+  display: flex; align-items: center; justify-content: center;
+}
+.map-bg-img {
+  height: 100%; width: auto; opacity: 0.12;
+  filter: sepia(1) hue-rotate(100deg) saturate(3);
+  position: absolute;
+}
+.map-point {
+  position: absolute; cursor: pointer; z-index: 10;
+}
+.map-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--primary-light);
+  border: 2px solid white;
+  box-shadow: 0 0 8px var(--primary-glow);
+  position: relative; z-index: 2;
+  transition: transform 0.2s;
+}
+.map-point.secondary .map-dot { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.5); }
+.map-point:hover .map-dot { transform: scale(1.4); }
+.map-pulse {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(16,185,129,0.3);
+  animation: pulse-ring 2s ease-out infinite;
+}
+.map-point.secondary .map-pulse { background: rgba(96,165,250,0.3); }
+@keyframes pulse-ring {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+}
+.map-tooltip {
+  position: absolute;
+  bottom: 125%; left: 50%; transform: translateX(-50%);
+  background: rgba(15,23,42,0.95);
+  color: #f1f5f9;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px; border: 1px solid rgba(16,185,129,0.3);
+  font-size: 0.78rem; line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 20;
+}
+.map-point:hover .map-tooltip { opacity: 1; }
+
+.map-info-panel {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.map-info-panel h3 {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 1.1rem; margin-bottom: 1.25rem; color: #0f172a;
+}
+.map-info-panel h3 i { width: 20px; height: 20px; color: var(--primary); }
+.map-city-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+.map-city-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px; background: #f8fafc;
+}
+.map-city-item strong { display: block; font-size: 0.875rem; color: #1e293b; }
+.map-city-item span { font-size: 0.75rem; color: #64748b; }
+.city-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary-light);
+}
+.city-dot.secondary { background: #60a5fa; }
+.map-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem; margin-bottom: 0.5rem;
+}
+.map-stat {
+  text-align: center; background: #f0fdf4;
+  border-radius: 10px; padding: 0.75rem 0.5rem;
+}
+.map-stat strong { display: block; font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+.map-stat span { font-size: 0.72rem; color: #64748b; }
+
+/* ── NOTIFICATIONS SOCIALES ── */
+.social-notif-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--primary);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  font-size: 0.82rem; color: #1e293b;
+  pointer-events: all;
+  animation: notifSlideIn 0.4s ease;
+  max-width: 280px;
+}
+.social-notif-item strong { color: #0f172a; }
+.social-notif-item span { color: #64748b; font-size: 0.75rem; display: block; margin-top: 1px; }
+.notif-emoji { font-size: 1.4rem; }
+@keyframes notifSlideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── CHAT IA ── */
+#ai-chat-btn {
+  position: fixed; bottom: 5.5rem; right: 1.2rem; z-index: 9997;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(16,185,129,0.45);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+#ai-chat-btn:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 12px 36px rgba(16,185,129,0.55); }
+#ai-chat-btn i { width: 26px; height: 26px; }
+.chat-notif-dot {
+  position: absolute; top: 4px; right: 4px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #ef4444; border: 2px solid white;
+  animation: bounce 1s infinite;
+}
+@keyframes bounce { 0%,100%{transform:scale(1)}50%{transform:scale(1.3)} }
+
+#ai-chat-window {
+  position: fixed; bottom: 7.5rem; right: 1.2rem; z-index: 9996;
+  width: 340px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  animation: chatPop 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+#ai-chat-window.open { display: flex; }
+@keyframes chatPop {
+  from { opacity:0; transform: scale(0.9) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.chat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+}
+.chat-avatar-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.chat-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.chat-avatar i { width: 20px; height: 20px; }
+.chat-header strong { display: block; font-size: 0.9rem; }
+.chat-online { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; opacity: 0.9; }
+.online-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; }
+.chat-close-btn {
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+}
+.chat-messages {
+  flex: 1; padding: 1rem; overflow-y: auto; max-height: 300px;
+  display: flex; flex-direction: column; gap: 0.75rem;
+  background: #f8fafc;
+}
+.chat-msg { display: flex; }
+.chat-msg.bot { justify-content: flex-start; }
+.chat-msg.user { justify-content: flex-end; }
+.msg-bubble {
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  max-width: 85%;
+}
+.chat-msg.bot .msg-bubble {
+  background: white; border: 1px solid #e2e8f0; color: #1e293b;
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user .msg-bubble {
+  background: linear-gradient(135deg, #059669, #10b981); color: white;
+  border-bottom-right-radius: 4px;
+}
+.chat-quick-replies {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.25rem;
+}
+.chat-quick-replies button {
+  background: white; border: 1px solid #e2e8f0;
+  border-radius: 999px; padding: 0.35rem 0.75rem;
+  font-size: 0.78rem; cursor: pointer; color: #1e293b;
+  transition: all 0.2s;
+}
+.chat-quick-replies button:hover { background: #ecfdf5; border-color: var(--primary); color: var(--primary); }
+.chat-input-row {
+  display: flex; gap: 0.5rem; padding: 0.75rem 1rem;
+  border-top: 1px solid #e2e8f0; background: white;
+}
+.chat-input-row input {
+  flex: 1; padding: 0.6rem 0.9rem;
+  border: 1px solid #e2e8f0; border-radius: 999px;
+  font-size: 0.85rem; outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input-row input:focus { border-color: var(--primary); }
+.chat-input-row button {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.chat-input-row button i { width: 16px; height: 16px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calc-options-grid { grid-template-columns: repeat(2, 1fr); }
+  .map-wrapper { grid-template-columns: 1fr; }
+  .testi-card { flex: 0 0 90%; }
+  #ai-chat-window { width: calc(100vw - 2rem); right: 1rem; }
+  .pricing-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .pricing-card.featured { transform: translateY(0); }
+  .tracking-result-details { grid-template-columns: 1fr; }
+  .tracking-steps { flex-wrap: wrap; gap: 1rem; }
+}
+</style>
+
+
+<!-- ============================================================
+     JAVASCRIPT POUR TOUTES LES FONCTIONNALITÉS
+     ============================================================ -->
+<script>
+/* ── 1. COMPTEUR ANIMÉ AU SCROLL ── */
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    if (el.dataset.counted) return;
+    el.dataset.counted = '1';
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const decimal = parseInt(el.dataset.decimal || '0');
+    const duration = 2000;
+    const step = 16;
+    const steps = duration / step;
+    let current = 0;
+    const inc = target / steps;
+    const timer = setInterval(() => {
+      current = Math.min(current + inc, target);
+      el.textContent = current.toFixed(decimal) + suffix;
+      if (current >= target) clearInterval(timer);
+    }, step);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+
+/* ── 2. CALCULATEUR DE DEVIS ── */
+let basePrice = 0;
+document.querySelectorAll('.calc-option input').forEach(radio => {
+  radio.addEventListener('change', () => {
+    basePrice = parseInt(radio.closest('.calc-option').dataset.base);
+    document.getElementById('calc-btn-1').disabled = false;
+    document.querySelectorAll('.calc-option input').forEach(r => {
+      r.closest('.calc-option').querySelector('.calc-option-inner').style.transform = 'scale(1)';
+    });
+    radio.closest('.calc-option').querySelector('.calc-option-inner').style.transform = 'scale(1.02)';
+    calcEstimate();
+  });
+});
+
+function calcNextStep(n) {
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('calc-step-' + n).classList.remove('hidden');
+  document.querySelectorAll('.calc-step').forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+  if (n === 3) calcEstimate();
+}
+
+function updateUrgencyLabel(v) {
+  document.getElementById('urgency-val').textContent = ['', 'Normal', 'Urgent', 'Très urgent'][v];
+}
+
+function calcEstimate() {
+  if (!basePrice) return;
+  const users = parseInt(document.getElementById('users-slider').value);
+  const duration = parseInt(document.getElementById('duration-slider').value);
+  const urgency = parseInt(document.getElementById('urgency-slider').value);
+  let price = basePrice;
+  price += (users / 10) * 50000;
+  price *= (0.8 + duration * 0.07);
+  if (urgency === 2) price *= 1.25;
+  if (urgency === 3) price *= 1.5;
+  if (document.getElementById('extra-maintenance')?.checked) price *= 1.15;
+  if (document.getElementById('extra-training')?.checked) price *= 1.10;
+  if (document.getElementById('extra-sla')?.checked) price *= 1.20;
+  const min = Math.round(price * 0.85 / 10000) * 10000;
+  const max = Math.round(price * 1.15 / 10000) * 10000;
+  const fmt = n => n.toLocaleString('fr-FR');
+  if (document.getElementById('result-min')) {
+    document.getElementById('result-min').textContent = fmt(min);
+    document.getElementById('result-max').textContent = fmt(max);
+  }
+}
+
+function calcReset() {
+  calcNextStep(1);
+  document.querySelectorAll('input[name="project_type"]').forEach(r => r.checked = false);
+  basePrice = 0;
+  document.getElementById('calc-btn-1').disabled = true;
+}
+
+function scrollToCalc(e) {
+  e.preventDefault();
+  document.getElementById('devis-calculator').scrollIntoView({ behavior: 'smooth' });
+}
+
+
+/* ── 3. CARROUSEL TÉMOIGNAGES ── */
+let testiIndex = 0;
+const track = document.getElementById('testi-track');
+const cards = track ? track.querySelectorAll('.testi-card') : [];
+const dotsContainer = document.getElementById('testi-dots');
+
+function initTesti() {
+  if (!cards.length) return;
+  const visible = window.innerWidth < 768 ? 1 : 3;
+  cards.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToTesti(i);
+    dotsContainer.appendChild(dot);
+  });
+}
+
+function testiSlide(dir) {
+  const visible = window.innerWidth < 768 ? 1 : 3;
+  const max = Math.max(0, cards.length - visible);
+  testiIndex = Math.max(0, Math.min(testiIndex + dir, max));
+  const cardW = cards[0]?.offsetWidth + 24 || 0;
+  track.style.transform = `translateX(-${testiIndex * cardW}px)`;
+  document.querySelectorAll('.testi-dot').forEach((d, i) => d.classList.toggle('active', i === testiIndex));
+}
+
+function goToTesti(i) {
+  testiIndex = i - 1;
+  testiSlide(1);
+}
+initTesti();
+// Auto-play
+setInterval(() => {
+  const visible = window.innerWidth < 768 ? 1 : 3;
+  if (testiIndex >= cards.length - visible) testiIndex = -1;
+  testiSlide(1);
+}, 5000);
+
+
+/* ── 4. NOTIFICATIONS SOCIALES ── */
+const notifData = [
+  { emoji: '💬', name: 'Rodrigue K.', action: 'vient de demander un devis Cloud', time: 'il y a 2 min' },
+  { emoji: '🛒', name: 'Fatima D.', action: 'a commandé un Switch HP ProCurve', time: 'il y a 5 min' },
+  { emoji: '📞', name: 'Emmanuel N.', action: 'consulte nos services IoT', time: 'il y a 8 min' },
+  { emoji: '✅', name: 'Sarah M.', action: 'a validé un contrat de maintenance', time: 'il y a 12 min' },
+  { emoji: '💡', name: 'Alain B.', action: 'a demandé une démo cybersécurité', time: 'il y a 18 min' },
+  { emoji: '🏢', name: 'InnoGroup CI', action: 'vient de signer un projet ERP', time: 'il y a 25 min' },
+];
+let notifQueue = [...notifData];
+function showNotif() {
+  if (!notifQueue.length) notifQueue = [...notifData];
+  const notif = notifQueue.splice(Math.floor(Math.random() * notifQueue.length), 1)[0];
+  const container = document.getElementById('social-notif');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'social-notif-item';
+  el.innerHTML = `<span class="notif-emoji">${notif.emoji}</span>
+    <div><strong>${notif.name}</strong> ${notif.action}<span>${notif.time}</span></div>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.5s, transform 0.5s';
+    el.style.opacity = '0'; el.style.transform = 'translateX(-20px)';
+    setTimeout(() => el.remove(), 500);
+  }, 4000);
+}
+// Première notif après 3s, puis toutes les 8s
+setTimeout(() => { showNotif(); setInterval(showNotif, 8000); }, 3000);
+
+
+/* ── 5. CHAT IA ── */
+const chatResponses = {
+  default: ["Je vais transmettre votre message à notre équipe. 🙏<br>Vous pouvez aussi nous appeler au <strong>+237 674861509</strong> ou visiter notre page <a href='/contact/' style='color:#059669'>Contact</a>."],
+  devis: ["Super ! 😊 Utilisez notre <a href='#devis-calculator' style='color:#059669'>calculateur de devis</a> pour une estimation rapide, ou remplissez le <a href='/contact/' style='color:#059669'>formulaire de contact</a> pour un devis officiel sous 24h."],
+  service: ["Nous proposons : <br>🌐 Développement Web & Apps<br>☁️ Infrastructure Cloud<br>🔒 Cybersécurité<br>⚡ IoT Industriel<br>🖥️ Support & Maintenance<br><br>Visitez notre page <a href='/services/' style='color:#059669'>Services</a> pour plus de détails."],
+  boutique: ["Notre boutique propose du matériel réseau, serveurs, équipements IoT et postes de travail certifiés.<br><a href='/boutique/' style='color:#059669'>👉 Voir la boutique</a>"],
+  contact: ["📍 <strong>Douala, Cameroun</strong><br>📞 +237 674861509<br>📧 contact@stantech.com<br><br>Ou visitez notre <a href='/contact/' style='color:#059669'>page contact</a>."],
+};
+
+function getResponse(text) {
+  const t = text.toLowerCase();
+  if (t.includes('devis') || t.includes('prix') || t.includes('coût') || t.includes('tarif')) return chatResponses.devis;
+  if (t.includes('service') || t.includes('cloud') || t.includes('iot') || t.includes('web') || t.includes('sécurité')) return chatResponses.service;
+  if (t.includes('boutique') || t.includes('matériel') || t.includes('produit') || t.includes('commande')) return chatResponses.boutique;
+  if (t.includes('contact') || t.includes('appel') || t.includes('téléphone') || t.includes('adresse')) return chatResponses.contact;
+  return chatResponses.default;
+}
+
+function toggleChat() {
+  const w = document.getElementById('ai-chat-window');
+  w.classList.toggle('open');
+  document.querySelector('.chat-notif-dot').style.display = 'none';
+  if (window.lucide) lucide.createIcons();
+}
+
+function appendMsg(text, isUser) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
+  div.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendQuick(text) {
+  document.getElementById('quick-replies').style.display = 'none';
+  sendMessage(text);
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  sendMessage(val);
+}
+
+function sendMessage(text) {
+  appendMsg(text, true);
+  setTimeout(() => {
+    const responses = getResponse(text);
+    const reply = responses[Math.floor(Math.random() * responses.length)];
+    appendMsg(reply, false);
+    if (window.lucide) lucide.createIcons();
+  }, 700);
+}
+
+
+/* ── 6. TOGGLE PRICING MENSEL / ANNUEL ── */
+let pricingIsYearly = false;
+function togglePricing() {
+  pricingIsYearly = !pricingIsYearly;
+  document.getElementById('pricing-toggle').classList.toggle('active', pricingIsYearly);
+  document.querySelectorAll('.price-val').forEach(el => {
+    const key = pricingIsYearly ? 'yearly' : 'monthly';
+    el.textContent = el.dataset[key];
+  });
+}
+
+
+/* ── 7. SUIVI DE COMMANDE INTERACTIF (AJAX) ── */
+function searchOrder() {
+  const input = document.getElementById('order-search-input');
+  const val = input.value.trim().toUpperCase();
+  const res = document.getElementById('tracking-result');
+  const msg = document.getElementById('tracking-message');
+  
+  if (!val) return;
+  
+  res.classList.add('hidden');
+  msg.classList.remove('hidden');
+  msg.className = 'loading';
+  msg.innerHTML = '<i data-lucide="loader-2" style="animation:spin 1s linear infinite;"></i> Recherche de votre commande...';
+  if (window.lucide) lucide.createIcons();
+
+  fetch(`/api/track-order/?order_number=${encodeURIComponent(val)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        msg.className = 'error';
+        msg.textContent = data.message || 'Commande introuvable.';
+        return;
+      }
+      
+      // Succès
+      msg.classList.add('hidden');
+      res.classList.remove('hidden');
+      
+      document.getElementById('track-cust-name').textContent = data.customer_name;
+      document.getElementById('track-order-date').textContent = data.date;
+      document.getElementById('track-order-total').textContent = data.total.toLocaleString('fr-FR') + ' FCFA';
+      
+      // Barre de progression
+      document.getElementById('track-progress-bar').style.width = data.progress + '%';
+      
+      // Activation des étapes
+      const steps = ['pending', 'confirmed', 'shipped', 'delivered'];
+      const currentIdx = steps.indexOf(data.status);
+      steps.forEach((s, idx) => {
+        const el = document.getElementById('step-' + s);
+        if (el) el.classList.toggle('active', idx <= currentIdx);
+      });
+
+      // Liste des articles
+      const ul = document.getElementById('track-items-ul');
+      ul.innerHTML = '';
+      data.items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.qty}x ${item.name}`;
+        ul.appendChild(li);
+      });
+    })
+    .catch(err => {
+      msg.className = 'error';
+      msg.textContent = 'Une erreur est survenue lors de la recherche.';
+    });
+}
+
+
+/* ── 8. SCROLL REVEAL ACTIVATION ── */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+</script>
+
+{% endblock %}
