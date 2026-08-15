@@ -8,7 +8,7 @@
         {% if product %}Modifier : {{ product.name }}{% else %}Nouveau Produit{% endif %}
       </h3>
     </div>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-card-body">
         <div class="form-grid">
@@ -30,12 +30,16 @@
           </div>
           <div class="form-group">
             <label>Catégorie</label>
-            <select name="category" class="form-control">
-              <option value="">— Aucune catégorie —</option>
-              {% for cat in categories %}
-                <option value="{{ cat.pk }}" {% if product.category_id == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
-              {% endfor %}
-            </select>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <select name="category" id="category_select" class="form-control" style="flex:1; min-width:200px;">
+                <option value="" data-name="">— Aucune catégorie —</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.pk }}" data-name="{{ cat.name|lower }}" {% if product.category_id == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+                <option value="new" data-name="new">+ Nouvelle catégorie...</option>
+              </select>
+              <input type="text" name="new_category_name" id="new_category_input" class="form-control" style="display:none; flex:1; min-width:200px;" placeholder="Nom de la nouvelle catégorie">
+            </div>
           </div>
           <div class="form-group">
             <label>Badge / Label</label>
@@ -54,9 +58,13 @@
             <textarea name="full_description" class="form-control" rows="5" placeholder="Description détaillée, caractéristiques, contenu de la boîte...">{{ product.full_description|default:'' }}</textarea>
           </div>
           <div class="form-group form-full">
-            <label>URL de l'Image</label>
-            <input type="text" name="image_url" id="image_url_input" class="form-control" value="{{ product.image_url|default:'' }}" placeholder="https://exemple.com/image.jpg ou /media/produit.jpg">
-            <img id="img-preview" src="{{ product.image_url|default:'' }}" class="img-preview" {% if product.image_url %}style="display:block;"{% endif %}>
+            <label>Image du Produit</label>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <input type="file" name="image_file" id="image_file_input" class="form-control" accept="image/*">
+              <span style="font-size:0.85rem; color:var(--text-muted);">OU importer via URL :</span>
+              <input type="text" name="image_url" id="image_url_input" class="form-control" value="{{ product.image_url|default:'' }}" placeholder="https://exemple.com/image.jpg">
+            </div>
+            <img id="img-preview" src="{{ product.image_url|default:'' }}" class="img-preview" style="margin-top:1rem; max-width:200px; border-radius:8px; {% if product.image_url %}display:block;{% else %}display:none;{% endif %}">
           </div>
           <div class="form-group form-full">
             <label>Fiche Technique (Clé: Valeur par ligne)</label>
@@ -112,13 +120,90 @@
 </div>
 
 <script>
+  const categorySelect = document.getElementById('category_select');
+  const newCategoryInput = document.getElementById('new_category_input');
+  const specsTextarea = document.querySelector('textarea[name="specs"]');
+
+  const categoryBaseSpecs = {
+    'ordinateur': "Processeur: \nRAM: \nStockage: \nÉcran: \nOS: ",
+    'portable': "Processeur: \nRAM: \nStockage: \nÉcran: \nBatterie: \nOS: ",
+    'smartphone': "Écran: \nBatterie: \nCaméra: \nStockage: \nRAM: ",
+    'tablette': "Écran: \nBatterie: \nCaméra: \nStockage: \nRAM: ",
+    'serveur': "Processeur: \nRAM: \nStockage RAID: \nAlimentation: \nFormat: ",
+    'routeur': "Vitesse: \nPorts: \nNorme WiFi: ",
+    'imprimante': "Type: \nVitesse d'impression: \nRésolution: \nConnectivité: ",
+    'logiciel': "Éditeur: \nLicence: \nVersion: \nCompatibilité: ",
+    'default': "Marque: \nGarantie: "
+  };
+
+  if(categorySelect) {
+    // Initial check in case "new" is somehow selected (e.g. form re-render, though not handled in backend context here)
+    if(categorySelect.value === 'new') {
+      newCategoryInput.style.display = 'block';
+    }
+
+    categorySelect.addEventListener('change', function() {
+      // Toggle new category input
+      if (this.value === 'new') {
+        newCategoryInput.style.display = 'block';
+        newCategoryInput.required = true;
+        newCategoryInput.focus();
+      } else {
+        newCategoryInput.style.display = 'none';
+        newCategoryInput.required = false;
+        newCategoryInput.value = '';
+      }
+
+      // Auto-fill specs if empty
+      if (specsTextarea && specsTextarea.value.trim() === '') {
+        const selectedOption = this.options[this.selectedIndex];
+        const catName = selectedOption.getAttribute('data-name');
+        
+        let foundSpec = null;
+        if (catName && catName !== 'new' && catName !== '') {
+          for (const [key, value] of Object.entries(categoryBaseSpecs)) {
+            if (catName.includes(key)) {
+              foundSpec = value;
+              break;
+            }
+          }
+        }
+        
+        if (foundSpec) {
+          specsTextarea.value = foundSpec;
+        } else if (catName && catName !== 'new' && catName !== '') {
+          specsTextarea.value = categoryBaseSpecs['default'];
+        }
+      }
+    });
+  }
+
   const imgInput = document.getElementById('image_url_input');
+  const imgFileInput = document.getElementById('image_file_input');
   const imgPreview = document.getElementById('img-preview');
+  
   if(imgInput) {
     imgInput.addEventListener('input', function() {
-      const url = this.value.trim();
-      if(url) { imgPreview.src = url; imgPreview.style.display = 'block'; }
-      else { imgPreview.style.display = 'none'; }
+      if(!imgFileInput.value) {
+        const url = this.value.trim();
+        if(url) { imgPreview.src = url; imgPreview.style.display = 'block'; }
+        else { imgPreview.style.display = 'none'; }
+      }
+    });
+  }
+  
+  if(imgFileInput) {
+    imgFileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if(file) {
+        imgPreview.src = URL.createObjectURL(file);
+        imgPreview.style.display = 'block';
+        if(imgInput) imgInput.value = ''; // Clear URL if local file is uploaded
+      } else {
+        const url = imgInput ? imgInput.value.trim() : '';
+        if(url) { imgPreview.src = url; imgPreview.style.display = 'block'; }
+        else { imgPreview.style.display = 'none'; }
+      }
     });
   }
   if(window.lucide) lucide.createIcons();

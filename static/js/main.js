@@ -329,8 +329,25 @@ function initCheckoutForm() {
           if (checkoutModal) checkoutModal.classList.remove('active');
           showToast(`Commande ${res.order_number} validée avec succès !`, 'check-circle');
           updateCartUI(res);
-          // Show order success modal or alert
-          alert(`Félicitations ! Votre commande N° ${res.order_number} a été transmise au service STANTECH. Nous vous contacterons sous peu pour la livraison.`);
+          // Show order success modal instead of alert
+          const successOverlay = document.createElement('div');
+          successOverlay.className = 'modal-overlay active';
+          successOverlay.style.zIndex = '99999';
+          successOverlay.innerHTML = `
+            <div class="modal-content" style="max-width: 500px; text-align: center; padding: 3rem 2rem;">
+              <div style="width: 80px; height: 80px; background: #d1fae5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i data-lucide="check-circle" style="width: 40px; height: 40px;"></i>
+              </div>
+              <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: #0f172a;">Succès !</h2>
+              <p style="color: #475569; font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+                Votre commande N° <strong>${res.order_number}</strong> a été enregistrée chez STANTECH avec succès.<br><br>
+                Notre équipe va prendre contact avec vous sous peu pour la livraison.
+              </p>
+              <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()" style="padding: 0.8rem 2rem; width: 100%;">Fermer</button>
+            </div>
+          `;
+          document.body.appendChild(successOverlay);
+          if (window.lucide) lucide.createIcons();
         } else {
           showToast(res.message || 'Erreur lors de la commande', 'alert-circle');
         }

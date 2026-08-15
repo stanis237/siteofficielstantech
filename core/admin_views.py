@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 import json
 import csv
 from datetime import datetime
+from django.core.files.storage import FileSystemStorage
 
 import io
 import openpyxl
@@ -698,8 +699,18 @@ def dashboard_product_add(request):
             short_description = request.POST['short_description']
             full_description = request.POST.get('full_description', '')
             image_url = request.POST.get('image_url', '')
+            image_file = request.FILES.get('image_file')
+            if image_file:
+                fs = FileSystemStorage()
+                filename = fs.save(f"products/{image_file.name}", image_file)
+                image_url = fs.url(filename)
             specs = request.POST.get('specs', '')
-            category_id = request.POST.get('category') or None
+            new_category_name = request.POST.get('new_category_name', '').strip()
+            if new_category_name:
+                cat, _ = Category.objects.get_or_create(name=new_category_name, type='product')
+                category_id = cat.id
+            else:
+                category_id = request.POST.get('category') or None
             is_featured = request.POST.get('is_featured') == 'on'
             is_active = request.POST.get('is_active') == 'on'
 
@@ -741,8 +752,18 @@ def dashboard_product_edit(request, pk):
             product.short_description = request.POST['short_description']
             product.full_description = request.POST.get('full_description', '')
             product.image_url = request.POST.get('image_url', '')
+            image_file = request.FILES.get('image_file')
+            if image_file:
+                fs = FileSystemStorage()
+                filename = fs.save(f"products/{image_file.name}", image_file)
+                product.image_url = fs.url(filename)
             product.specs = request.POST.get('specs', '')
-            product.category_id = request.POST.get('category') or None
+            new_category_name = request.POST.get('new_category_name', '').strip()
+            if new_category_name:
+                cat, _ = Category.objects.get_or_create(name=new_category_name, type='product')
+                product.category_id = cat.id
+            else:
+                product.category_id = request.POST.get('category') or None
             product.is_featured = request.POST.get('is_featured') == 'on'
             product.is_active = request.POST.get('is_active') == 'on'
             product.slug = ''  # reset slug so it regenerates

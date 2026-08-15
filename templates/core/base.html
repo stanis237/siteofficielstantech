@@ -4,6 +4,10 @@
 
 <head>
   <meta charset="UTF-8">
+  <!-- SEA & Analytics Head Scripts -->
+  {% block analytics_head %}
+  <!-- Insérez ici votre code Google Tag Manager, Google Analytics (GA4) ou Meta Pixel -->
+  {% endblock %}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- SEO Base Meta Tags -->
   <title>{% block title %}STANTECH | Solutions Technologiques & Ingénierie{% endblock %}</title>
@@ -256,6 +260,10 @@
 </head>
 
 <body>
+  <!-- SEA & Analytics Body Scripts -->
+  {% block analytics_body %}
+  <!-- Insérez ici la balise <noscript> de Google Tag Manager (si applicable) -->
+  {% endblock %}
 
   <!-- Curseur personnalisé -->
   <div id="cursor-dot"></div>
