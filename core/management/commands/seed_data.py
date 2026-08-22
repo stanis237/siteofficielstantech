@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from core.models import Category, Service, Realization, Product
+from core.models import Category, Service, Realization, Product, Application
 
 class Command(BaseCommand):
     help = 'Populates the database with initial demo data for STANTECH enterprise & boutique'
@@ -247,4 +247,106 @@ class Command(BaseCommand):
         for p_data in products_data:
             Product.objects.get_or_create(name=p_data["name"], defaults=p_data)
 
-        self.stdout.write(self.style.SUCCESS('Successfully seeded STANTECH database with high-quality categories, services, realizations, and boutique products!'))
+        # 5. Applications & SaaS
+        cat_app_saas, _ = Category.objects.get_or_create(
+            name="SaaS & Cloud Software",
+            type="application",
+            defaults={"description": "Logiciels SaaS multi-locataires hébergés sur le Cloud STANTECH", "icon": "cloud"}
+        )
+
+        cat_app_mobile, _ = Category.objects.get_or_create(
+            name="Applications Mobiles",
+            type="application",
+            defaults={"description": "Apps iOS & Android destinées aux professionnels et grand public", "icon": "smartphone"}
+        )
+
+        cat_app_ai, _ = Category.objects.get_or_create(
+            name="Intelligence Artificielle",
+            type="application",
+            defaults={"description": "Solutions basées sur le Machine Learning et la Computer Vision", "icon": "cpu"}
+        )
+
+        apps_data = [
+            {
+                "title": "STANTECH Cloud ERP Pro",
+                "category": cat_app_saas,
+                "platform": "saas",
+                "version": "v3.2.0",
+                "icon": "layers",
+                "short_description": "Plateforme ERP complète de gestion commerciale, comptabilité, stocks et RH pour PME et grandes entreprises.",
+                "full_description": "Une suite logicielle intégrée tout-en-un offrant une visibilité à 360° sur votre entreprise. Inclus : facturation automatisée, gestion des achats, contrôle d'inventaire en temps réel, paie et rapports décisionnels avancés.",
+                "tech_stack": "Python, Django, PostgreSQL, Vue.js, Docker, Redis",
+                "image_url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+                "demo_url": "https://stantech.ci/demo/erp",
+                "badge": "SaaS Multi-Tenant",
+                "is_featured": True,
+                "order": 1
+            },
+            {
+                "title": "STANTECH Pay & Wallet Mobile",
+                "category": cat_app_mobile,
+                "platform": "mobile",
+                "version": "v2.5.1",
+                "icon": "smartphone",
+                "short_description": "Application mobile sécurisée de paiement électronique, transfert d'argent et gestion de portefeuille numérique.",
+                "full_description": "Application Mobile Fintech permettant les paiements QR Code, la gestion multi-devises, le paiement de factures et l'intégration instantanée avec Mobile Money (Orange, MTN, Moov, Wave) et cartes bancaires.",
+                "tech_stack": "Flutter, Dart, Node.js, Firebase, REST API, RSA-2048",
+                "image_url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80",
+                "demo_url": "https://stantech.ci/demo/pay",
+                "download_url": "https://play.google.com",
+                "badge": "Mobile iOS & Android",
+                "is_featured": True,
+                "order": 2
+            },
+            {
+                "title": "STANTECH AI Vision Inspector",
+                "category": cat_app_ai,
+                "platform": "ai",
+                "version": "v1.8.0",
+                "icon": "cpu",
+                "short_description": "Solution d'IA de détection automatique d'anomalies visuelles et contrôle qualité industriel sur chaîne de production.",
+                "full_description": "Système de vision par ordinateur propulsé par des réseaux de neurones profonds. Analyse 60 images par seconde pour détecter les défauts de fabrication, contrôler les accès par reconnaissance faciale et lire les plaques d'immatriculation.",
+                "tech_stack": "Python, PyTorch, OpenCV, FastAPI, CUDA, React",
+                "image_url": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
+                "demo_url": "https://stantech.ci/demo/ai-vision",
+                "badge": "Intelligence Artificielle",
+                "is_featured": True,
+                "order": 3
+            },
+            {
+                "title": "EduTech LMS Learning Hub",
+                "category": cat_app_saas,
+                "platform": "web",
+                "version": "v2.1.0",
+                "icon": "globe",
+                "short_description": "Plateforme web d'apprentissage en ligne, cours vidéo interactifs, examens et délivrance de certificats.",
+                "full_description": "Solution complète d'E-Learning conçue pour les universités, centres de formation et entreprises. Gestion des parcours de formation, visioconférences HD intégrées, suivi de progression et quizz automatisés.",
+                "tech_stack": "Next.js, Django REST, Tailwind CSS, Stripe, WebRTC",
+                "image_url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=1200&q=80",
+                "demo_url": "https://stantech.ci/demo/edutech",
+                "badge": "E-Learning",
+                "is_featured": False,
+                "order": 4
+            },
+            {
+                "title": "SecureVault Enterprise Desktop",
+                "category": cat_app_saas,
+                "platform": "desktop",
+                "version": "v4.0.2",
+                "icon": "shield",
+                "short_description": "Application desktop de chiffrement de fichiers et gestionnaire de mots de passe d'entreprise hautement sécurisé.",
+                "full_description": "Coffre-fort numérique local et cloud avec chiffrement bout en bout (E2EE), partage sécurisé de documents confidentiels, authentification biométrique et journal d'audit infalsifiable.",
+                "tech_stack": "Electron, Python, Cryptography, SQLite, Rust",
+                "image_url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80",
+                "download_url": "https://stantech.ci/download/securevault",
+                "badge": "Cybersécurité Desktop",
+                "is_featured": False,
+                "order": 5
+            }
+        ]
+
+        for a_data in apps_data:
+            Application.objects.get_or_create(title=a_data["title"], defaults=a_data)
+
+        self.stdout.write(self.style.SUCCESS('Successfully seeded STANTECH database with high-quality categories, services, realizations, boutique products, and applications!'))
+

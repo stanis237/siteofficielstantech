@@ -28,11 +28,34 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q5ag-2ij4-aemvb9te9n0s6=2*#bxy2a3rklrwsy%twvwo*hj&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'False'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '*').split(',') if host.strip()]
 
-CSRF_TRUSTED_ORIGINS = [url.strip() for url in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if url.strip()]
+# Configuration automatique et sécurisée de CSRF_TRUSTED_ORIGINS pour la production
+csrf_origins_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+csrf_origins = []
+for origin in csrf_origins_env:
+    origin = origin.strip()
+    if origin:
+        if not origin.startswith(('http://', 'https://')):
+            csrf_origins.append(f'https://{origin}')
+            csrf_origins.append(f'http://{origin}')
+        else:
+            csrf_origins.append(origin)
+
+if not csrf_origins:
+    for host in ALLOWED_HOSTS:
+        if host and host != '*':
+            clean_host = host.lstrip('.').lstrip('*').lstrip('.')
+            if clean_host:
+                csrf_origins.append(f'https://{clean_host}')
+                csrf_origins.append(f'http://{clean_host}')
+
+CSRF_TRUSTED_ORIGINS = csrf_origins
+
+# En-tête SSL Proxy (nécessaire derrière Nginx, Cloudflare, Heroku, Railway, Render)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -72,6 +95,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.cart_context',
             ],
+            'libraries': {
+                'custom_filters': 'core.templatetags.custom_filters',
+            },
         },
     },
 ]

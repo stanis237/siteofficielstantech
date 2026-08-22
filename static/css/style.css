@@ -1297,6 +1297,29 @@ textarea.form-control {
   }
 }
 
+
+/* ── Additional Mobile Tweaks ── */
+/* Ensure hero section text is centered on very small screens */
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  .hero-content p {
+    font-size: 1rem;
+  }
+  .hero-cta {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
+
+/* Reduce container padding on mobile for tighter layout */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
 /* ================================================
    Bouton Admin Discret (accès dashboard caché)
    ================================================ */

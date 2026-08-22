@@ -1,0 +1,167 @@
+{% extends 'admin_custom/base.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="dash-grid-3">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h3>
+        <i data-lucide="{% if app %}pencil{% else %}plus{% endif %}"></i>
+        {% if app %}Modifier : {{ app.title }}{% else %}Nouvelle Application{% endif %}
+      </h3>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-card-body">
+        <div class="form-grid">
+          
+          <div class="form-group form-full">
+            <label>Nom de l'Application <span class="req">*</span></label>
+            <input type="text" name="title" class="form-control" value="{{ app.title|default:'' }}" required placeholder="Ex : STANTECH Cloud ERP Pro, Mobile Pay Wallet...">
+          </div>
+
+          <div class="form-group">
+            <label>Plateforme / Format <span class="req">*</span></label>
+            <select name="platform" class="form-control" required>
+              {% for code, label in platform_choices %}
+                <option value="{{ code }}" {% if app.platform == code %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Version (ex: v1.0.0)</label>
+            <input type="text" name="version" class="form-control" value="{{ app.version|default:'v1.0.0' }}" placeholder="v1.0.0">
+          </div>
+
+          <div class="form-group">
+            <label>Icône Lucide</label>
+            <input type="text" name="icon" class="form-control" value="{{ app.icon|default:'layout' }}" placeholder="layout, smartphone, monitor, cloud, cpu, shield, code...">
+            <div class="form-hint">Entrez un nom d'icône (ex: layout, smartphone, monitor, cloud, cpu, shield)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Badge / Label (Optionnel)</label>
+            <input type="text" name="badge" class="form-control" value="{{ app.badge|default:'' }}" placeholder="Ex: SaaS Multi-Tenant, iOS & Android, Beta, Gratuit">
+          </div>
+
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select name="category" class="form-control">
+              <option value="">— Aucune —</option>
+              {% for cat in categories %}
+                <option value="{{ cat.pk }}" {% if app.category_id == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Ordre d'affichage</label>
+            <input type="number" name="order" class="form-control" value="{{ app.order|default:'0' }}" min="0">
+          </div>
+
+          <div class="form-group form-full">
+            <label>Résumé Court <span class="req">*</span></label>
+            <textarea name="short_description" class="form-control" rows="3" required placeholder="Résumé percutant affiché sur les cartes grid...">{{ app.short_description|default:'' }}</textarea>
+          </div>
+
+          <div class="form-group form-full">
+            <label>Description Détaillée & Fonctionnalités</label>
+            <textarea name="full_description" class="form-control" rows="5" placeholder="Présentation complète, fonctionnalités clés, sécurité, intégrations...">{{ app.full_description|default:'' }}</textarea>
+          </div>
+
+          <div class="form-group form-full">
+            <label>Stack Technique (Séparées par des virgules)</label>
+            <input type="text" name="tech_stack" class="form-control" value="{{ app.tech_stack|default:'' }}" placeholder="Python, Django, React, Flutter, PostgreSQL, Docker">
+            <div class="form-hint">Ces technologies apparaîtront sous forme de badges sous chaque carte.</div>
+          </div>
+
+          <div class="form-group form-full">
+            <label>URL de l'Image / Capture d'écran (optionnel)</label>
+            <input type="text" name="image_url" id="image_url_input" class="form-control" value="{{ app.image_url|default:'' }}" placeholder="https://images.unsplash.com/...">
+            <img id="img-preview" src="{{ app.image_url|default:'' }}" class="img-preview" {% if app.image_url %}style="display:block;"{% endif %}>
+          </div>
+
+          <div class="form-group">
+            <label>Lien Démo / Accès Web (optionnel)</label>
+            <input type="url" name="demo_url" class="form-control" value="{{ app.demo_url|default:'' }}" placeholder="https://stantech.ci/demo/...">
+          </div>
+
+          <div class="form-group">
+            <label>Lien Téléchargement / Store (optionnel)</label>
+            <input type="text" name="download_url" class="form-control" value="{{ app.download_url|default:'' }}" placeholder="https://play.google.com/...">
+          </div>
+
+          <div class="form-group">
+            <label>Importer le Fichier APK (.apk)</label>
+            <input type="file" name="apk_file" accept=".apk" class="form-control">
+            {% if app.download_url and ".apk" in app.download_url %}
+              <div class="form-hint" style="margin-top: 0.25rem;">
+                <i data-lucide="file-down" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 2px;"></i>
+                APK actuel : <a href="{{ app.download_url }}" target="_blank" style="color: var(--primary); text-decoration: underline;">{{ app.download_url }}</a>
+              </div>
+            {% endif %}
+          </div>
+
+          <div style="display:flex;gap:2rem;align-items:center;" class="form-full">
+            <div class="form-check">
+              <input type="checkbox" name="is_active" id="id_is_active" {% if app.is_active or not app %}checked{% endif %}>
+              <label for="id_is_active">Application Active / Publiée</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" name="is_featured" id="id_is_featured" {% if app.is_featured %}checked{% endif %}>
+              <label for="id_is_featured">Mettre en Avant (Accueil)</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="form-footer">
+        <a href="{% url 'dashboard_applications' %}" class="btn btn-outline"><i data-lucide="arrow-left"></i> Annuler</a>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="save"></i> Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ICÔNES SUGGÉRÉES -->
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="form-card">
+      <div class="form-card-header"><h3><i data-lucide="sparkles"></i> Icônes suggérées</h3></div>
+      <div class="form-card-body">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem;">
+          {% for icon_name in "layout,smartphone,monitor,cloud,cpu,shield,code,globe,box,layers,zap,terminal,database,git-branch,activity"|split:"," %}
+          <div onclick="document.querySelector('[name=icon]').value='{{ icon_name }}'; lucide.createIcons();"
+               style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;padding:0.5rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all 0.2s;font-size:0.6rem;color:var(--text-muted);"
+               onmouseover="this.style.borderColor='var(--primary)';this.style.background='var(--primary-soft)'"
+               onmouseout="this.style.borderColor='var(--border)';this.style.background='transparent'">
+            <i data-lucide="{{ icon_name }}" style="width:18px;height:18px;color:var(--primary);"></i>
+            {{ icon_name }}
+          </div>
+          {% endfor %}
+        </div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.75rem;">Cliquez sur une icône pour la sélectionner.</p>
+      </div>
+    </div>
+
+    {% if app %}
+    <div class="form-card" style="border-color:#fecaca;">
+      <div class="form-card-header" style="background:#fef2f2;"><h3 style="color:#dc2626;"><i data-lucide="trash-2"></i> Zone Danger</h3></div>
+      <div class="form-card-body">
+        <form method="post" action="{% url 'dashboard_application_delete' app.pk %}" onsubmit="return confirm('Supprimer cette application ?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger" style="width:100%;"><i data-lucide="trash-2"></i> Supprimer l'Application</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  const imgInput = document.getElementById('image_url_input');
+  const imgPreview = document.getElementById('img-preview');
+  if(imgInput){ imgInput.addEventListener('input',function(){ const url=this.value.trim(); if(url){imgPreview.src=url;imgPreview.style.display='block';}else{imgPreview.style.display='none';} }); }
+  if(window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

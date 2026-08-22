@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Nos Applications & Solutions Logicielles | STANTECH{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="padding: 9rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center;">
+  <div class="container">
+    <span class="badge badge-accent" style="margin-bottom: 1rem;">SUITE LOGICIELLE & APPLICATIONS</span>
+    <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Nos Applications & Plateformes SaaS</h1>
+    <p style="color: #94a3b8; max-width: 700px; margin: 0 auto; font-size: 1.1rem; line-height: 1.7;">
+      Découvrez l'écosystème d'applications web, mobiles et SaaS développées par les ingénieurs STANTECH. Des solutions innovantes, performantes et immédiatement déployables.
+    </p>
+  </div>
+</section>
+
+<!-- Filter & Showcase Section -->
+<section style="padding: 4rem 0 6rem; background: var(--bg-light);">
+  <div class="container">
+
+    <!-- Filter Bar / Tabs -->
+    <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 3.5rem;">
+      <a href="{% url 'applications' %}" class="btn {% if not selected_platform and not selected_category %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius: 999px; padding: 0.5rem 1.4rem;">
+        <i data-lucide="grid"></i> Toutes les Apps
+      </a>
+      {% for code, label in platform_choices %}
+        <a href="?platform={{ code }}" class="btn {% if selected_platform == code %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius: 999px; padding: 0.5rem 1.4rem;">
+          <i data-lucide="{% if code == 'web' %}globe{% elif code == 'mobile' %}smartphone{% elif code == 'desktop' %}monitor{% elif code == 'saas' %}cloud{% else %}cpu{% endif %}"></i> {{ label }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Applications Grid Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+      {% for app in applications %}
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: var(--transition); display: flex; flex-direction: column;"
+             onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-lg)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)';">
+
+          <!-- Card Media Header -->
+          <div style="position: relative; height: 210px; overflow: hidden; background: #0f172a;">
+            {% if app.image_url %}
+              <img src="{{ app.image_url }}" alt="{{ app.title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: transform 0.4s ease;"
+                   onmouseover="this.style.transform='scale(1.06)';" onmouseout="this.style.transform='scale(1)';" loading="lazy">
+            {% else %}
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #059669, #10b981); color: white;">
+                <i data-lucide="{{ app.icon|default:'layout' }}" style="width: 64px; height: 64px; opacity: 0.8;"></i>
+              </div>
+            {% endif %}
+
+            <!-- Top Badges -->
+            <div style="position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-accent">{{ app.get_platform_display }}</span>
+              {% if app.badge %}
+                <span class="badge badge-dark">{{ app.badge }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Version Tag -->
+            <div style="position: absolute; bottom: 0.75rem; right: 1rem; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #10b981; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);">
+              {{ app.version }}
+            </div>
+          </div>
+
+          <!-- Card Content Body -->
+          <div style="padding: 1.8rem; display: flex; flex-direction: column; flex: 1;">
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <div style="width: 38px; height: 38px; border-radius: 10px; background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-lucide="{{ app.icon|default:'layout' }}" style="width: 20px; height: 20px;"></i>
+              </div>
+              <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0;">{{ app.title }}</h3>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.94rem; line-height: 1.6; margin-bottom: 1.5rem; flex: 1;">
+              {{ app.short_description }}
+            </p>
+
+            <!-- Tech Stack Pills -->
+            {% if app.get_tech_tags %}
+              <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem;">
+                {% for tech in app.get_tech_tags %}
+                  <span style="font-size: 0.72rem; font-weight: 600; background: rgba(16, 185, 129, 0.1); color: var(--primary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.2rem 0.6rem; border-radius: 6px;">
+                    {{ tech }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 0.75rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+              {% if app.demo_url %}
+                <a href="{{ app.demo_url }}" target="_blank" class="btn btn-primary" style="flex: 1; padding: 0.65rem 1rem; font-size: 0.85rem;">
+                  <i data-lucide="external-link"></i> Démo En Ligne
+                </a>
+              {% endif %}
+
+              {% if app.download_url %}
+                <a href="{{ app.download_url }}" target="_blank" class="btn btn-outline" style="padding: 0.65rem 1rem; font-size: 0.85rem;">
+                  <i data-lucide="download"></i> Télécharger
+                </a>
+              {% endif %}
+
+              {% if not app.demo_url and not app.download_url %}
+                <a href="{% url 'contact' %}?service_interest=Application%20{{ app.title|urlencode }}" class="btn btn-outline" style="flex: 1; padding: 0.65rem 1rem; font-size: 0.85rem;">
+                  <i data-lucide="message-square"></i> Demander une Démo
+                </a>
+              {% endif %}
+            </div>
+
+          </div>
+
+        </div>
+      {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 1rem; color: var(--text-muted);">
+          <i data-lucide="layers" style="width: 56px; height: 56px; margin: 0 auto 1.2rem; opacity: 0.4;"></i>
+          <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Aucune application trouvée</h3>
+          <p>Essayez de changer les filtres ou revenez plus tard.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<!-- Custom App Development Callout -->
+<section style="padding: 5rem 0; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; text-align: center;">
+  <div class="container">
+    <div style="max-width: 750px; margin: 0 auto;">
+      <span class="badge" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 1rem;">SUR-MESURE & CLEFS EN MAIN</span>
+      <h2 style="color: white; font-size: 2.3rem; margin-bottom: 1rem;">Besoin d'une Application Web, Mobile ou SaaS Métier ?</h2>
+      <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 2rem; line-height: 1.7;">
+        Notre équipe d'ingénieurs conçoit et développe vos applications sur mesure avec une architecture cloud évolutive, sécurisée et adaptée à vos objectifs business.
+      </p>
+      <a href="{% url 'contact' %}" class="btn" style="background: white; color: #059669; font-weight: 700; padding: 0.9rem 2.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <i data-lucide="code-2"></i> Lancer Votre Projet Applicatif
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

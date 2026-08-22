@@ -56,6 +56,17 @@
     <div class="stat-label">Réalisations enregistrées</div>
   </div>
 
+  <div class="stat-card" style="--card-color: linear-gradient(90deg, #8b5cf6, #ec4899);">
+    <div class="stat-card-header">
+      <div class="stat-icon" style="--icon-bg:#f5f3ff;--icon-color:#8b5cf6;">
+        <i data-lucide="layout-grid"></i>
+      </div>
+      <span class="stat-change up">Apps</span>
+    </div>
+    <div class="stat-value">{{ total_applications }}</div>
+    <div class="stat-label">Applications publiées</div>
+  </div>
+
   <div class="stat-card" style="--card-color: linear-gradient(90deg, #3b82f6, #06b6d4);">
     <div class="stat-card-header">
       <div class="stat-icon" style="--icon-bg:#eff6ff;--icon-color:#2563eb;">
@@ -215,6 +226,9 @@
     </a>
     <a href="{% url 'dashboard_realisation_add' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 2px 8px rgba(245,158,11,0.3);">
       <i data-lucide="plus"></i> Nouvelle Réalisation
+    </a>
+    <a href="{% url 'dashboard_application_add' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);box-shadow:0 2px 8px rgba(139,92,246,0.3);">
+      <i data-lucide="plus"></i> Nouvelle Application
     </a>
     <a href="{% url 'dashboard_orders' %}?status=pending" class="btn btn-outline">
       <i data-lucide="clock"></i> Commandes en Attente

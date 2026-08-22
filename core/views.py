@@ -1,22 +1,49 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 import json
 
-from .models import Category, Service, Realization, Product, Order, OrderItem, ContactMessage
+from .models import Category, Service, Realization, Product, Order, OrderItem, ContactMessage, Application
+
+def get_sanitized_cart(request):
+    """
+    Safely retrieves and sanitizes the cart dict from the user session.
+    Prevents errors from old/incompatible cart data stored in existing cookies.
+    """
+    cart = request.session.get('cart', {})
+    if not isinstance(cart, dict):
+        cart = {}
+    
+    sanitized = {}
+    for product_id, item in cart.items():
+        if isinstance(item, dict):
+            try:
+                sanitized[str(product_id)] = {
+                    'name': str(item.get('name', '')),
+                    'price': float(item.get('price', 0.0)),
+                    'quantity': max(1, int(item.get('quantity', 1))),
+                    'image_url': str(item.get('image_url', '')),
+                    'slug': str(item.get('slug', '')),
+                }
+            except (TypeError, ValueError):
+                continue
+    return sanitized
 
 def index(request):
     featured_services = Service.objects.filter(is_active=True, is_featured=True)[:3]
     all_services = Service.objects.filter(is_active=True)[:6]
     featured_realizations = Realization.objects.filter(is_active=True, is_featured=True)[:3]
     featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
+    featured_applications = Application.objects.filter(is_active=True, is_featured=True)[:3]
 
     context = {
         'featured_services': featured_services,
         'all_services': all_services,
         'featured_realizations': featured_realizations,
         'featured_products': featured_products,
+        'featured_applications': featured_applications,
     }
     return render(request, 'core/index.html', context)
 
@@ -39,6 +66,28 @@ def realisations_view(request):
         'categories': categories,
     }
     return render(request, 'core/realisations.html', context)
+
+
+def applications_view(request):
+    applications = Application.objects.filter(is_active=True)
+    categories = Category.objects.filter(type='application')
+
+    cat_slug = request.GET.get('category')
+    platform_filter = request.GET.get('platform')
+
+    if cat_slug:
+        applications = applications.filter(category__slug=cat_slug)
+    if platform_filter:
+        applications = applications.filter(platform=platform_filter)
+
+    context = {
+        'applications': applications,
+        'categories': categories,
+        'selected_category': cat_slug,
+        'selected_platform': platform_filter,
+        'platform_choices': Application.PLATFORM_CHOICES,
+    }
+    return render(request, 'core/applications.html', context)
 
 
 def boutique_view(request):
@@ -70,7 +119,7 @@ def product_detail_view(request, slug):
 
 
 def cart_view(request):
-    cart = request.session.get('cart', {})
+    cart = get_sanitized_cart(request)
     cart_items_detailed = []
     total_amount = 0
 
@@ -85,7 +134,7 @@ def cart_view(request):
                 'price': item['price'],
                 'subtotal': subtotal,
             })
-        except Product.DoesNotExist:
+        except (Product.DoesNotExist, ValueError):
             continue
 
     context = {
@@ -129,6 +178,7 @@ def contact_view(request):
 # REST / JSON API ENDPOINTS
 # ==========================================
 
+@csrf_exempt
 @require_POST
 def api_cart_add(request):
     try:
@@ -138,7 +188,7 @@ def api_cart_add(request):
 
         product = get_object_or_404(Product, id=product_id, is_active=True)
 
-        cart = request.session.get('cart', {})
+        cart = get_sanitized_cart(request)
 
         if product_id in cart:
             cart[product_id]['quantity'] += quantity
@@ -168,6 +218,7 @@ def api_cart_add(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
+@csrf_exempt
 @require_POST
 def api_cart_update(request):
     try:
@@ -175,7 +226,7 @@ def api_cart_update(request):
         product_id = str(data.get('product_id'))
         quantity = int(data.get('quantity', 1))
 
-        cart = request.session.get('cart', {})
+        cart = get_sanitized_cart(request)
 
         if product_id in cart:
             if quantity > 0:
@@ -214,11 +265,12 @@ def api_product_detail(request, product_id):
     return JsonResponse(data)
 
 
+@csrf_exempt
 @require_POST
 def api_checkout(request):
     try:
         data = json.loads(request.body)
-        cart = request.session.get('cart', {})
+        cart = get_sanitized_cart(request)
 
         if not cart:
             return JsonResponse({'success': False, 'message': 'Votre panier est vide.'}, status=400)

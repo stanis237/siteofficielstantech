@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('services/', views.services_view, name='services'),
     path('realisations/', views.realisations_view, name='realisations'),
+    path('applications/', views.applications_view, name='applications'),
     path('boutique/', views.boutique_view, name='boutique'),
     path('boutique/produit/<slug:slug>/', views.product_detail_view, name='product_detail'),
     path('boutique/panier/', views.cart_view, name='cart'),
@@ -42,6 +43,11 @@ urlpatterns = [
     path('dashboard/realisations/ajouter/', admin_views.dashboard_realisation_add, name='dashboard_realisation_add'),
     path('dashboard/realisations/<int:pk>/modifier/', admin_views.dashboard_realisation_edit, name='dashboard_realisation_edit'),
     path('dashboard/realisations/<int:pk>/supprimer/', admin_views.dashboard_realisation_delete, name='dashboard_realisation_delete'),
+
+    path('dashboard/applications/', admin_views.dashboard_applications, name='dashboard_applications'),
+    path('dashboard/applications/ajouter/', admin_views.dashboard_application_add, name='dashboard_application_add'),
+    path('dashboard/applications/<int:pk>/modifier/', admin_views.dashboard_application_edit, name='dashboard_application_edit'),
+    path('dashboard/applications/<int:pk>/supprimer/', admin_views.dashboard_application_delete, name='dashboard_application_delete'),
 
     path('dashboard/commandes/', admin_views.dashboard_orders, name='dashboard_orders'),
     path('dashboard/commandes/export/', admin_views.dashboard_export_orders, name='dashboard_export_orders'),

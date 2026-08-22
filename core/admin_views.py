@@ -31,7 +31,7 @@ except ImportError:
     _SVGLIB_OK = False
 
 from django.contrib.auth.models import User
-from .models import Category, Service, Realization, Product, Order, OrderItem, ContactMessage
+from .models import Category, Service, Realization, Product, Order, OrderItem, ContactMessage, Application
 
 
 # ─── Garde : superusers uniquement ──────────────────────────
@@ -326,22 +326,16 @@ def dashboard_export_orders_pdf(request):
         textColor=colors.white
     )
 
-    # ── En-tête avec logo ──
-    _svg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images', 'stantech_logo.svg')
-    if _SVGLIB_OK and os.path.exists(_svg_path):
-        drawing = svg2rlg(_svg_path)
-        if drawing:
-            sx = 180 / drawing.width
-            drawing.width = 180
-            drawing.height = drawing.height * sx
-            drawing.transform = (sx, 0, 0, sx, 0, 0)
-            story.append(drawing)
-            story.append(Spacer(1, 4))
-        else:
-            story.append(Paragraph("STANTECH ENTERPRISE", title_style))
+    # ── En‑tête avec logo (PNG) ──
+    _png_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images', 'logo.png')
+    if os.path.exists(_png_path):
+        img = RLImage(_png_path, width=80, height=80)
+        story.append(img)
+        story.append(Spacer(1, 4))
     else:
         story.append(Paragraph("STANTECH ENTERPRISE", title_style))
-    story.append(Paragraph(f"Rapport des Commandes Client — Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}", sub_style))
+    # Titre du rapport
+    story.append(Paragraph(f"Rapport des Commandes STANTECH — Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}", title_style))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#E2E8F0'), spaceAfter=15))
 
     orders = Order.objects.all().order_by('-created_at')
@@ -421,16 +415,11 @@ def dashboard_export_order_single_pdf(request, pk):
     label_style = ParagraphStyle('Label', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#475569'))
     val_style = ParagraphStyle('Val', parent=styles['Normal'], fontName='Helvetica', fontSize=9, textColor=colors.HexColor('#1E293B'))
 
-    _svg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images', 'stantech_logo.svg')
+    _png_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images', 'logo.png')
     logo_cell = None
-    if _SVGLIB_OK and os.path.exists(_svg_path):
-        _drawing = svg2rlg(_svg_path)
-        if _drawing:
-            _sx = 160 / _drawing.width
-            _drawing.width = 160
-            _drawing.height = _drawing.height * _sx
-            _drawing.transform = (_sx, 0, 0, _sx, 0, 0)
-            logo_cell = _drawing
+    if os.path.exists(_png_path):
+        img = RLImage(_png_path, width=80, height=80)
+        logo_cell = img
     if logo_cell is None:
         logo_cell = Paragraph("STANTECH ENTERPRISE<br/><font size=8 color='#64748B'>Solutions Technologiques &amp; Ingénierie<br/>Douala / Abidjan | +237 674861509</font>", header_brand)
 
@@ -575,6 +564,7 @@ def dashboard_home(request):
     active_products = Product.objects.filter(is_active=True).count()
     total_services = Service.objects.count()
     total_realizations = Realization.objects.count()
+    total_applications = Application.objects.count()
     total_orders = Order.objects.count()
     pending_orders = Order.objects.filter(status='pending').count()
     unread_messages = ContactMessage.objects.filter(is_read=False).count()
@@ -615,6 +605,7 @@ def dashboard_home(request):
         'active_products': active_products,
         'total_services': total_services,
         'total_realizations': total_realizations,
+        'total_applications': total_applications,
         'total_orders': total_orders,
         'pending_orders': pending_orders,
         'unread_messages': unread_messages,
@@ -1015,3 +1006,131 @@ def dashboard_message_delete(request, pk):
         msg.delete()
         messages.success(request, 'Message supprimé.')
     return redirect('dashboard_messages')
+
+
+# ============================================================
+# APPLICATIONS
+# ============================================================
+
+@login_required(login_url='/dashboard/login/')
+@user_passes_test(is_superuser, login_url='/dashboard/login/')
+def dashboard_applications(request):
+    search = request.GET.get('q', '')
+    platform_filter = request.GET.get('platform', '')
+    applications = Application.objects.select_related('category').all()
+
+    if search:
+        applications = applications.filter(Q(title__icontains=search) | Q(short_description__icontains=search) | Q(tech_stack__icontains=search))
+    if platform_filter:
+        applications = applications.filter(platform=platform_filter)
+
+    categories = Category.objects.filter(type='application')
+    context = {
+        'applications': applications,
+        'categories': categories,
+        'search': search,
+        'platform_filter': platform_filter,
+        'platform_choices': Application.PLATFORM_CHOICES,
+        'page_title': 'Gestion des Applications',
+    }
+    return render(request, 'admin_custom/applications.html', context)
+
+
+@login_required(login_url='/dashboard/login/')
+@user_passes_test(is_superuser, login_url='/dashboard/login/')
+def dashboard_application_add(request):
+    categories = Category.objects.filter(type='application')
+    if request.method == 'POST':
+        try:
+            download_url = request.POST.get('download_url', '')
+            apk_file = request.FILES.get('apk_file')
+            if apk_file:
+                fs = FileSystemStorage()
+                filename = fs.save(f"apks/{apk_file.name}", apk_file)
+                download_url = fs.url(filename)
+
+            app = Application.objects.create(
+                title=request.POST['title'],
+                platform=request.POST.get('platform', 'web'),
+                version=request.POST.get('version', 'v1.0.0'),
+                icon=request.POST.get('icon', 'layout'),
+                badge=request.POST.get('badge', ''),
+                short_description=request.POST['short_description'],
+                full_description=request.POST.get('full_description', ''),
+                tech_stack=request.POST.get('tech_stack', ''),
+                image_url=request.POST.get('image_url', ''),
+                demo_url=request.POST.get('demo_url', ''),
+                download_url=download_url,
+                category_id=request.POST.get('category') or None,
+                is_featured=request.POST.get('is_featured') == 'on',
+                is_active=request.POST.get('is_active') == 'on',
+                order=request.POST.get('order', 0),
+            )
+            messages.success(request, f'✅ Application "{app.title}" ajoutée avec succès !')
+            return redirect('dashboard_applications')
+        except Exception as e:
+            messages.error(request, f'❌ Erreur : {e}')
+
+    context = {
+        'categories': categories,
+        'platform_choices': Application.PLATFORM_CHOICES,
+        'page_title': 'Ajouter une Application'
+    }
+    return render(request, 'admin_custom/application_form.html', context)
+
+
+@login_required(login_url='/dashboard/login/')
+@user_passes_test(is_superuser, login_url='/dashboard/login/')
+def dashboard_application_edit(request, pk):
+    app = get_object_or_404(Application, pk=pk)
+    categories = Category.objects.filter(type='application')
+    if request.method == 'POST':
+        try:
+            download_url = request.POST.get('download_url', '')
+            apk_file = request.FILES.get('apk_file')
+            if apk_file:
+                fs = FileSystemStorage()
+                filename = fs.save(f"apks/{apk_file.name}", apk_file)
+                download_url = fs.url(filename)
+
+            app.title = request.POST['title']
+            app.platform = request.POST.get('platform', 'web')
+            app.version = request.POST.get('version', 'v1.0.0')
+            app.icon = request.POST.get('icon', 'layout')
+            app.badge = request.POST.get('badge', '')
+            app.short_description = request.POST['short_description']
+            app.full_description = request.POST.get('full_description', '')
+            app.tech_stack = request.POST.get('tech_stack', '')
+            app.image_url = request.POST.get('image_url', '')
+            app.demo_url = request.POST.get('demo_url', '')
+            app.download_url = download_url
+            app.category_id = request.POST.get('category') or None
+            app.is_featured = request.POST.get('is_featured') == 'on'
+            app.is_active = request.POST.get('is_active') == 'on'
+            app.order = request.POST.get('order', 0)
+            app.slug = ''
+            app.save()
+            messages.success(request, f'✅ Application "{app.title}" mise à jour !')
+            return redirect('dashboard_applications')
+        except Exception as e:
+            messages.error(request, f'❌ Erreur : {e}')
+
+    context = {
+        'app': app,
+        'categories': categories,
+        'platform_choices': Application.PLATFORM_CHOICES,
+        'page_title': 'Modifier l\'Application'
+    }
+    return render(request, 'admin_custom/application_form.html', context)
+
+
+@login_required(login_url='/dashboard/login/')
+@user_passes_test(is_superuser, login_url='/dashboard/login/')
+def dashboard_application_delete(request, pk):
+    app = get_object_or_404(Application, pk=pk)
+    if request.method == 'POST':
+        title = app.title
+        app.delete()
+        messages.success(request, f'🗑️ Application "{title}" supprimée.')
+    return redirect('dashboard_applications')
+
