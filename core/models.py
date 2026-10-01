@@ -183,6 +183,11 @@ class OrderItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Prix unitaire")
     quantity = models.IntegerField(default=1, verbose_name="Quantité")
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Sous-total")
+    product_image_url = models.CharField(max_length=500, blank=True, default='', verbose_name="Image du produit")
+    product_category = models.CharField(max_length=100, blank=True, default='', verbose_name="Catégorie du produit")
+    product_short_description = models.TextField(blank=True, default='', verbose_name="Description courte")
+    product_specs = models.TextField(blank=True, default='', verbose_name="Spécifications du produit")
+    product_badge = models.CharField(max_length=50, blank=True, default='', verbose_name="Badge du produit")
 
     class Meta:
         verbose_name = "Article de commande"
@@ -190,6 +195,15 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.product_name}"
+
+    def get_specs_dict(self):
+        specs_list = []
+        if self.product_specs:
+            for line in self.product_specs.split('\n'):
+                if ':' in line:
+                    key, val = line.split(':', 1)
+                    specs_list.append({'key': key.strip(), 'value': val.strip()})
+        return specs_list
 
 
 class ContactMessage(models.Model):

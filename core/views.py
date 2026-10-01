@@ -299,7 +299,7 @@ def api_checkout(request):
             status='pending'
         )
 
-        # Create Order Items
+        # Create Order Items with full product details
         for p_id, item in cart.items():
             product_obj = Product.objects.filter(id=p_id).first()
             OrderItem.objects.create(
@@ -308,7 +308,12 @@ def api_checkout(request):
                 product_name=item['name'],
                 price=item['price'],
                 quantity=item['quantity'],
-                subtotal=item['quantity'] * float(item['price'])
+                subtotal=item['quantity'] * float(item['price']),
+                product_image_url=product_obj.image_url if product_obj else '',
+                product_category=product_obj.category.name if product_obj and product_obj.category else '',
+                product_short_description=product_obj.short_description if product_obj else '',
+                product_specs=product_obj.specs if product_obj else '',
+                product_badge=product_obj.badge if product_obj else '',
             )
 
         # Clear Cart in Session

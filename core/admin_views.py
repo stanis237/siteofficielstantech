@@ -400,7 +400,8 @@ def dashboard_export_orders_pdf(request):
 @login_required(login_url='/dashboard/login/')
 @user_passes_test(is_superuser, login_url='/dashboard/login/')
 def dashboard_export_order_single_pdf(request, pk):
-    """Génère la facture / bon de commande PDF pour une commande spécifique."""
+    """Génère la facture / bon de commande PDF pour une commande spécifique,
+    avec TOUTES les informations et caractéristiques de chaque produit."""
     order = get_object_or_404(Order, pk=pk)
 
     buffer = io.BytesIO()
@@ -414,6 +415,12 @@ def dashboard_export_order_single_pdf(request, pk):
     doc_type = ParagraphStyle('DocType', parent=styles['Heading2'], fontName='Helvetica-Bold', fontSize=14, textColor=colors.HexColor('#1E293B'), alignment=2)
     label_style = ParagraphStyle('Label', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#475569'))
     val_style = ParagraphStyle('Val', parent=styles['Normal'], fontName='Helvetica', fontSize=9, textColor=colors.HexColor('#1E293B'))
+    # Styles supplémentaires pour les détails produit
+    detail_label = ParagraphStyle('DetailLabel', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=8, textColor=colors.HexColor('#475569'))
+    detail_val = ParagraphStyle('DetailVal', parent=styles['Normal'], fontName='Helvetica', fontSize=8, textColor=colors.HexColor('#1E293B'), leading=11)
+    spec_style = ParagraphStyle('SpecStyle', parent=styles['Normal'], fontName='Helvetica', fontSize=7.5, textColor=colors.HexColor('#334155'), leading=10)
+    section_title = ParagraphStyle('SectionTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, textColor=colors.HexColor('#1E293B'), spaceAfter=6)
+    badge_style = ParagraphStyle('BadgeStyle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=8, textColor=colors.HexColor('#059669'))
 
     _png_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images', 'logo.png')
     logo_cell = None
@@ -438,6 +445,7 @@ def dashboard_export_order_single_pdf(request, pk):
     story.append(Spacer(1, 15))
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#059669'), spaceAfter=15))
 
+    # ── Informations Client ──
     client_info = [
         [Paragraph("CLIENT :", label_style), Paragraph(order.customer_name, val_style), Paragraph("TÉLÉPHONE :", label_style), Paragraph(order.customer_phone, val_style)],
         [Paragraph("EMAIL :", label_style), Paragraph(order.customer_email or "—", val_style), Paragraph("VILLE :", label_style), Paragraph(order.city, val_style)],
@@ -456,22 +464,35 @@ def dashboard_export_order_single_pdf(request, pk):
     story.append(t_client)
     story.append(Spacer(1, 20))
 
+    # ── Tableau récapitulatif des articles ──
     cell_head = ParagraphStyle('Head', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.white)
     cell_item = ParagraphStyle('Item', parent=styles['Normal'], fontName='Helvetica', fontSize=9, textColor=colors.HexColor('#1E293B'))
 
     items_data = [
-        [Paragraph("Produit / Article", cell_head), Paragraph("Prix Unitaire", cell_head), Paragraph("Qté", cell_head), Paragraph("Sous-Total", cell_head)]
+        [Paragraph("N°", cell_head), Paragraph("Produit / Article", cell_head), Paragraph("Catégorie", cell_head), Paragraph("Prix Unitaire", cell_head), Paragraph("Qté", cell_head), Paragraph("Sous-Total", cell_head)]
     ]
 
-    for item in order.items.all():
+    order_items = list(order.items.all())
+    for idx, item in enumerate(order_items, 1):
+        # Récupérer la catégorie depuis OrderItem ou fallback sur Product
+        category_name = item.product_category or (item.product.category.name if item.product and item.product.category else 'Général')
+        badge_text = item.product_badge or (item.product.badge if item.product else '')
+
+        # Nom du produit avec badge si disponible
+        product_label = item.product_name
+        if badge_text:
+            product_label = f"{item.product_name} <font color='#059669'>[{badge_text}]</font>"
+
         items_data.append([
-            Paragraph(item.product_name, cell_item),
+            Paragraph(str(idx), cell_item),
+            Paragraph(product_label, cell_item),
+            Paragraph(category_name, cell_item),
             Paragraph(f"{int(item.price):,} FCFA".replace(',', ' '), cell_item),
             Paragraph(str(item.quantity), cell_item),
             Paragraph(f"<b>{int(item.subtotal):,} FCFA</b>".replace(',', ' '), cell_item)
         ])
 
-    t_items = Table(items_data, colWidths=[240, 100, 50, 130])
+    t_items = Table(items_data, colWidths=[30, 190, 80, 85, 35, 100])
     t_items.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E293B')),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -479,24 +500,138 @@ def dashboard_export_order_single_pdf(request, pk):
         ('TOPPADDING', (0,0), (-1,0), 6),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F8FAFC')]),
-        ('ALIGN', (2,0), (2,-1), 'CENTER'),
+        ('ALIGN', (0,0), (0,-1), 'CENTER'),
+        ('ALIGN', (4,0), (4,-1), 'CENTER'),
         ('TOPPADDING', (0,1), (-1,-1), 6),
         ('BOTTOMPADDING', (0,1), (-1,-1), 6),
     ]))
     story.append(t_items)
     story.append(Spacer(1, 15))
 
+    # ── Total ──
     total_text = f"<b>TOTAL A PAYER :</b> &nbsp;&nbsp; <font size=13 color='#059669'>{int(order.total_amount):,} FCFA</font>".replace(',', ' ')
     p_total = Paragraph(total_text, ParagraphStyle('Tot', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=11, alignment=2))
     story.append(p_total)
+    story.append(Spacer(1, 25))
 
+    # ══════════════════════════════════════════════════════════
+    # SECTION DÉTAILS COMPLETS DE CHAQUE PRODUIT
+    # ══════════════════════════════════════════════════════════
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#059669'), spaceAfter=12))
+    story.append(Paragraph("DÉTAILS COMPLETS DES PRODUITS COMMANDÉS", ParagraphStyle(
+        'DetailTitle', parent=styles['Heading2'], fontName='Helvetica-Bold', fontSize=12,
+        textColor=colors.HexColor('#1E293B'), spaceAfter=10
+    )))
+
+    for idx, item in enumerate(order_items, 1):
+        # Récupérer toutes les infos disponibles (OrderItem stocké ou Product en fallback)
+        category_name = item.product_category or (item.product.category.name if item.product and item.product.category else 'Général')
+        description = item.product_short_description or (item.product.short_description if item.product else '')
+        badge_text = item.product_badge or (item.product.badge if item.product else '')
+        specs_raw = item.product_specs or (item.product.specs if item.product else '')
+        full_description = item.product.full_description if item.product else ''
+
+        # ── En-tête du produit ──
+        product_title = f"<b>{idx}. {item.product_name}</b>"
+        if badge_text:
+            product_title += f"  <font color='#059669'> [{badge_text}]</font>"
+        story.append(Paragraph(product_title, ParagraphStyle(
+            f'ProdTitle{idx}', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10,
+            textColor=colors.HexColor('#1E293B'), spaceAfter=4
+        )))
+
+        # ── Infos principales en tableau ──
+        info_rows = [
+            [Paragraph("<b>Catégorie :</b>", detail_label), Paragraph(category_name, detail_val),
+             Paragraph("<b>Prix unitaire :</b>", detail_label), Paragraph(f"{int(item.price):,} FCFA".replace(',', ' '), detail_val)],
+            [Paragraph("<b>Quantité :</b>", detail_label), Paragraph(str(item.quantity), detail_val),
+             Paragraph("<b>Sous-total :</b>", detail_label), Paragraph(f"<b>{int(item.subtotal):,} FCFA</b>".replace(',', ' '), detail_val)],
+        ]
+        if badge_text:
+            info_rows.append([
+                Paragraph("<b>Badge :</b>", detail_label), Paragraph(badge_text, badge_style),
+                Paragraph("", detail_label), Paragraph("", detail_val),
+            ])
+
+        t_info = Table(info_rows, colWidths=[80, 170, 80, 190])
+        t_info.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8FAFC')),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+            ('LEFTPADDING', (0,0), (-1,-1), 6),
+            ('RIGHTPADDING', (0,0), (-1,-1), 6),
+            ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
+            ('LINEBELOW', (0,0), (-1,-2), 0.3, colors.HexColor('#E2E8F0')),
+        ]))
+        story.append(t_info)
+        story.append(Spacer(1, 6))
+
+        # ── Description courte ──
+        if description:
+            story.append(Paragraph("<b>Description :</b>", detail_label))
+            story.append(Paragraph(description, detail_val))
+            story.append(Spacer(1, 4))
+
+        # ── Description complète ──
+        if full_description:
+            story.append(Paragraph("<b>Description complète &amp; Spécifications :</b>", detail_label))
+            # Nettoyer le texte pour éviter les problèmes XML
+            clean_desc = full_description.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            story.append(Paragraph(clean_desc, detail_val))
+            story.append(Spacer(1, 4))
+
+        # ── Spécifications techniques (Clé: Valeur) ──
+        if specs_raw:
+            specs_list = []
+            for line in specs_raw.split('\n'):
+                if ':' in line:
+                    key, val = line.split(':', 1)
+                    specs_list.append({'key': key.strip(), 'value': val.strip()})
+
+            if specs_list:
+                story.append(Paragraph("<b>Fiche Technique / Caractéristiques :</b>", detail_label))
+                story.append(Spacer(1, 3))
+
+                spec_table_data = [
+                    [Paragraph("<b>Caractéristique</b>", ParagraphStyle('SpecHead', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=8, textColor=colors.white)),
+                     Paragraph("<b>Valeur</b>", ParagraphStyle('SpecHead2', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=8, textColor=colors.white))]
+                ]
+                for spec in specs_list:
+                    spec_table_data.append([
+                        Paragraph(spec['key'], spec_style),
+                        Paragraph(spec['value'], spec_style)
+                    ])
+
+                t_specs = Table(spec_table_data, colWidths=[200, 320])
+                t_specs.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#475569')),
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('TOPPADDING', (0,0), (-1,-1), 4),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+                    ('LEFTPADDING', (0,0), (-1,-1), 8),
+                    ('RIGHTPADDING', (0,0), (-1,-1), 8),
+                    ('GRID', (0,0), (-1,-1), 0.4, colors.HexColor('#E2E8F0')),
+                    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F1F5F9')]),
+                ]))
+                story.append(t_specs)
+                story.append(Spacer(1, 6))
+
+        # Séparateur entre produits
+        if idx < len(order_items):
+            story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1'), spaceAfter=12, spaceBefore=6))
+
+    # ── Notes ──
     if order.notes:
         story.append(Spacer(1, 15))
-        story.append(Paragraph(f"<b>Notes & Instructions :</b> {order.notes}", val_style))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1'), spaceAfter=8))
+        story.append(Paragraph(f"<b>Notes &amp; Instructions de livraison :</b> {order.notes}", val_style))
 
+    # ── Footer ──
     story.append(Spacer(1, 30))
     story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1'), spaceAfter=10))
     story.append(Paragraph("Merci de votre confiance. STANTECH — Solutions Technologiques de Pointe.", ParagraphStyle('Foot', parent=styles['Normal'], fontName='Helvetica-Oblique', fontSize=8, textColor=colors.HexColor('#64748B'), alignment=1)))
+    story.append(Paragraph(f"Document généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')} — Ce document fait office de facture.", ParagraphStyle('Foot2', parent=styles['Normal'], fontName='Helvetica', fontSize=7, textColor=colors.HexColor('#94A3B8'), alignment=1, spaceBefore=4)))
 
     doc.build(story)
     pdf = buffer.getvalue()
@@ -968,8 +1103,24 @@ def dashboard_order_detail(request, pk):
             order.save()
             messages.success(request, f'Statut mis à jour : {order.get_status_display()}')
             return redirect('dashboard_order_detail', pk=pk)
+    
+    # Enrich items with product details from the linked Product (fallback)
+    items_detailed = []
+    for item in order.items.all():
+        item_data = {
+            'item': item,
+            'specs': item.get_specs_dict(),
+            'image_url': item.product_image_url or (item.product.image_url if item.product else ''),
+            'category': item.product_category or (item.product.category.name if item.product and item.product.category else 'Général'),
+            'description': item.product_short_description or (item.product.short_description if item.product else ''),
+            'badge': item.product_badge or (item.product.badge if item.product else ''),
+            'product_slug': item.product.slug if item.product else '',
+        }
+        items_detailed.append(item_data)
+    
     context = {
         'order': order,
+        'items_detailed': items_detailed,
         'status_choices': Order.STATUS_CHOICES,
         'page_title': f'Commande #{order.order_number}',
     }
